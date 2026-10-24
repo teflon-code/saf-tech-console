@@ -1,159 +1,450 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SAF-TECH Operations Console</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--bg:#eef3f6;--surface:#fff;--ink:#10222e;--muted:#52667a;--line:#cfdbe3;--teal:#0f766e;--teal-ink:#fff;--amber:#d97706;--red:#b91c1c;--track:#dbe6ec;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+:root{--bg:#eef3f6;--surface:#fff;--ink:#10222e;--muted:#52667a;--line:#cfdbe3;--teal:#0f766e;--teal-ink:#fff;--amber:#d97706;--red:#b91c1c;--track:#dbe6ec;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a22;--surface:#142632;--ink:#e8f1f6;--muted:#9bb0bf;--line:#264152;--teal:#2dd4bf;--teal-ink:#06231f;--amber:#fbbf24;--red:#f87171;--track:#21394a;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#000000;--surface:#0b0f12;--ink:#e8f1f6;--muted:#9bb0bf;--line:#264152;--teal:#2dd4bf;--teal-ink:#06231f;--amber:#fbbf24;--red:#f87171;--track:#21394a;color-scheme:dark}
-*,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;font-size:16px}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;font-size:16px}
 :focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .wrap{max-width:1100px;margin:0 auto;padding:0 18px 48px}
 header{display:flex;justify-content:space-between;align-items:center;padding:16px 0 8px;flex-wrap:wrap;gap:8px}
-h1{font-size:1.4rem;margin:0;letter-spacing:-.02em}
-header a{color:var(--muted);font-weight:600}
+h1{font-size:1.4rem;margin:0}
+h2{font-size:1.3rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 18px}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 14px;border-bottom:1px solid var(--line);margin-bottom:20px}
 .tabs button{font:inherit;font-weight:600;border:2px solid transparent;background:transparent;color:var(--muted);padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .tabs button[aria-selected=true]{background:var(--teal);color:var(--teal-ink)}
-h2{font-size:1.3rem;margin:0 0 4px;letter-spacing:-.02em}
-.sub{color:var(--muted);margin:0 0 18px}
 .grid{display:grid;gap:14px}
 .k4{grid-template-columns:repeat(4,1fr)}.k2{grid-template-columns:1fr 1fr}.k5{grid-template-columns:repeat(5,minmax(150px,1fr))}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
-.kpi b{display:block;font-size:1.8rem;letter-spacing:-.03em;line-height:1.1}
+@media (max-width:860px){.k4,.k2{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.k4,.k2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0;margin-bottom:14px}
+.kpi b{display:block;font-size:1.6rem;line-height:1.1}
 .kpi span{color:var(--muted);font-size:.9rem}
-.up{color:var(--teal);font-weight:600;font-size:.85rem}
 .bar{height:12px;background:var(--track);border-radius:6px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--teal);border-radius:6px}
 .bar i.w{background:var(--amber)}
 table{width:100%;border-collapse:collapse;font-size:.93rem}
-th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted);font-weight:600}
 .scroll{overflow-x:auto}
 button.s,select,input,textarea{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:5px 10px}
 button.s{cursor:pointer;font-weight:600}
 button.p{font:inherit;font-weight:700;background:var(--teal);color:var(--teal-ink);border:0;border-radius:8px;padding:9px 16px;cursor:pointer}
-.badge{font-size:.8rem;font-weight:700;border-radius:6px;padding:2px 8px;border:1.5px solid currentColor}
+button:disabled{opacity:.5;cursor:default}
+.badge{font-size:.8rem;font-weight:700;border-radius:6px;padding:2px 8px;border:1.5px solid currentColor;white-space:nowrap}
 .ok{color:var(--teal)}.warn{color:var(--amber)}.bad{color:var(--red)}
-.col h3{font-size:.95rem;margin:0 0 8px}
+form.add{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+form.add input{flex:1;min-width:140px}
 .lead{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:var(--bg);font-size:.9rem}
 .lead small{color:var(--muted);display:block;margin-bottom:6px}
-form.add{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-form.add input{flex:1;min-width:140px}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw}
 .toast.on{opacity:1}
-@media (max-width:860px){.k4,.k2{grid-template-columns:1fr 1fr}}
-@media (max-width:520px){.k4,.k2{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.pre{white-space:pre-wrap}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header><h1>SAF-TECH Operations Console</h1><a href="#" id="reset">Reset sample data</a></header>
-<div class="tabs" role="tablist" id="tabs"></div>
-<main id="view"></main>
+
+<section id="login" hidden style="max-width:380px;margin:12vh auto;padding:0 18px">
+  <div class="card">
+    <h2>Sign in</h2>
+    <p class="sub">Staff accounts only.</p>
+    <form onsubmit="signIn(event)" class="grid" style="gap:10px">
+      <input type="email" id="lg-email" placeholder="Email" aria-label="Email" required autocomplete="username">
+      <input type="password" id="lg-pass" placeholder="Password" aria-label="Password" required autocomplete="current-password">
+      <button class="p" id="lg-btn">Sign in</button>
+    </form>
+    <p id="lg-err" class="bad" role="alert"></p>
+  </div>
+</section>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <h1>SAF-TECH Operations Console</h1>
+    <div><span id="who" class="sub" style="margin:0 12px 0 0"></span><button class="s" onclick="signOut()">Sign out</button></div>
+  </header>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <main id="view"></main>
 </div>
 <div class="toast" id="toast" role="status"></div>
+
 <script>
-var PRICE={Bronze:2000,Silver:2500,Gold:3000,Premium:4500},LS=["New","Contacted","Site survey","Quoted","Won"],CS=["Onboarding","Active","Upsell","At risk"];
-var NEXT={"Onboarding":"Confirm install and Wi-Fi setup","Active":"Check-in call at 90 days","Upsell":"Offer a faster plan","At risk":"Call within 48 hours"};
-var TABS=["Overview","Leads","Goals","Marketing","Customers","Login details","Tertiary info","Billing","Messages"],tab="Overview";
-var MON=["Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"],SUBS=[2210,2290,2380,2450,2540,2620,2700,2790,2880,2960,3050,3120],TRAF=[4100,4400,4900,5200,5800,6100,6600,7000,7500,7900,8400,9000];
-var NODES=[["Nyeri core","Online","99.99%","6 ms"],["Karatina link","Online","99.96%","9 ms"],["Othaya tower","Degraded","99.71%","31 ms"],["Mweiga fiber ring","Online","99.98%","8 ms"],["Naro Moru edge","Online","99.95%","12 ms"]];
-function seed(){return{
-leads:[{id:1,n:"Mwangi Hardware",s:"Referral",p:"Family",st:0},{id:2,n:"Grace Wanjiru",s:"Social media",p:"Home",st:0},{id:3,n:"Hillview Lodge",s:"Door-to-door",p:"Studio",st:1},{id:4,n:"Peter Kamau",s:"Radio",p:"Home",st:2},{id:5,n:"Sunrise Academy",s:"Partnership",p:"Studio",st:3},{id:6,n:"Esther Njeri",s:"Referral",p:"Family",st:3},{id:7,n:"Baraka Cafe",s:"Google ads",p:"Family",st:4,c:1}],
-cust:[{id:1,n:"Baraka Cafe",p:"Family",st:"Onboarding",l:"Oct 20"},{id:2,n:"James Otieno",p:"Home",st:"Active",l:"Sep 12"},{id:3,n:"Nyeri Clinic",p:"Studio",st:"Active",l:"Aug 30"},{id:4,n:"Lucy Wambui",p:"Home",st:"Upsell",l:"Oct 02"},{id:5,n:"Kiambu Traders",p:"Family",st:"At risk",l:"Jul 15"},{id:6,n:"Daniel Mutua",p:"Family",st:"Active",l:"Oct 10"},{id:7,n:"Green Valley School",p:"Studio",st:"Active",l:"Sep 25"},{id:8,n:"Rose Achieng",p:"Home",st:"At risk",l:"Aug 02"}],
-inv:[[1,"Paid"],[2,"Paid"],[3,"Due"],[4,"Paid"],[5,"Overdue"],[6,"Due"],[7,"Paid"],[8,"Overdue"]].map(function(x,i){return{id:1001+i,c:x[0],m:"Oct 2026",s:x[1]}}),
-goals:[{t:"Reach 4,000 subscribers",c:3120,g:4000,u:""},{t:"Monthly recurring revenue",c:9400000,g:12000000,u:"KSh"},{t:"Cut monthly churn to 1.5% (lower is better)",c:1.8,g:1.5,u:"%",inv:1},{t:"Network uptime",c:99.97,g:99.99,u:"%",min:99},{t:"New customers this quarter",c:96,g:150,u:""}],
-mk:[["Referral program",150000,64,41,"Existing customers get one free month for each referral."],["Door-to-door visits",320000,58,22,"Sales team visits streets where fiber has just been laid."],["Social media",230000,92,18,"Short videos and local community groups on Facebook and WhatsApp."],["Radio and posters",280000,40,9,"Local FM spots and posters at shopping centers."],["Google ads",190000,36,11,"Search ads for ‘fiber internet near me’."],["Business partnerships",110000,18,10,"Schools, clinics and landlords who bundle our service."]]};}
-var S;try{S=JSON.parse(localStorage.getItem("saf2"))}catch(e){}function fix(){var PM={Home:"Bronze",Family:"Gold",Studio:"Premium",Basic:"Bronze",Standard:"Silver",Plus:"Gold"};S.leads.concat(S.cust).forEach(function(x){if(PM[x.p])x.p=PM[x.p]});S.cust.forEach(function(x,i){if(!x.ph&&!x.sv&&x.id<100){x.ph="0700 000 0"+(10+i);x.sv=i%3===1?"Hotspot":"PPPoE"}});S.inv.forEach(function(i){if(!i.pays){i.pays=[];if(i.s==="Paid"){i.pays.push({d:mp(i.m)+("0"+(2+i.id%20)).slice(-2),a:PRICE[cname(i.c).p]||0,pm:["Mobile money","Cash","Bank transfer"][i.id%3]})}i.s=i.s==="Overdue"?"Overdue":"Due"}});if(!S.h){S.h=1;var mx=1100;S.cust.forEach(function(c){if(c.id<100)["Jun 2026","Jul 2026","Aug 2026","Sep 2026"].forEach(function(m,k){var late=c.st==="At risk"&&k>1,i={id:++mx,c:c.id,m:m,s:late?"Overdue":"Due",pays:[]};if(!late)i.pays.push({d:mp(m)+("0"+(3+(c.id*3+k*2)%22)).slice(-2),a:PRICE[c.p]||0,pm:["Mobile money","Cash","Bank transfer"][(c.id+k)%3]});S.inv.push(i)})})}
-S.cust.forEach(function(c){if(c.id<100&&!c.u){c.u=c.n.split(" ")[0].toLowerCase()+(100+c.id*7);c.w="saf"+(2000+c.id*131);c.loc=["Town centre","Industrial area","Hillside estate","Market road"][c.id%4];c.eq="SN"+(48200+c.id*7);c.inst="2026-0"+(c.id%9+1)+"-15"}});
-S.msgs=S.msgs||[]}
-if(!S||!S.goals)S=seed();fix();
-function save(){try{localStorage.setItem("saf2",JSON.stringify(S))}catch(e){}}
-function $(s){return document.querySelector(s)}
-function money(n){return"KSh "+Math.round(n).toLocaleString("en-US")}
-function toast(t){var e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(function(){e.classList.remove("on")},1800)}
-function cname(id){var c=S.cust.filter(function(x){return x.id===id})[0];return c||{n:"Unknown",p:"Home"}}
-function chart(){var W=640,H=170,mx=3300,mn=2000,pts=SUBS.map(function(v,i){return(30+i*(W-50)/11).toFixed(1)+","+(H-20-(v-mn)/(mx-mn)*(H-40)).toFixed(1)}).join(" ");
-return'<svg viewBox="0 0 '+W+" "+H+'" width="100%" role="img" aria-label="Subscribers over 12 months"><polyline points="'+pts+'" fill="none" stroke="var(--teal)" stroke-width="3" stroke-linejoin="round"/>'+MON.map(function(m,i){return(i%2===0?'<text x="'+(30+i*(W-50)/11)+'" y="'+(H-3)+'" font-size="11" text-anchor="middle" fill="var(--muted)">'+m+"</text>":"")}).join("")+"</svg>"}
-function bars(){var mx=Math.max.apply(null,TRAF);return TRAF.map(function(v,i){return'<div style="display:flex;align-items:center;gap:8px;font-size:.85rem"><span style="width:28px;color:var(--muted)">'+MON[i]+'</span><div class="bar" style="flex:1"><i style="width:'+v/mx*100+'%"></i></div><span style="width:90px">'+v.toLocaleString("en-US")+" Mbps</span></div>"}).slice(-6).join("")}
-var V={
-Overview:function(){return'<h2>System analytics</h2><p class="sub">Network and subscriber health for the last 12 months.</p><div class="grid k4"><div class="card kpi"><span>Subscribers</span><b>3,120</b><span class="up">+4.2% this month</span></div><div class="card kpi"><span>Monthly revenue</span><b>KSh 9,400,000</b><span class="up">+3.1%</span></div><div class="card kpi"><span>Monthly churn</span><b>1.8%</b><span class="up">down from 2.2%</span></div><div class="card kpi"><span>Network uptime</span><b>99.97%</b><span>30-day average</span></div></div><div class="grid k2" style="margin-top:14px"><div class="card"><h2 style="font-size:1.05rem">Subscriber growth</h2>'+chart()+'</div><div class="card"><h2 style="font-size:1.05rem">Average traffic, last 6 months</h2><div class="grid" style="gap:8px">'+bars()+'</div></div></div><div class="card scroll" style="margin-top:14px"><h2 style="font-size:1.05rem">Network health</h2><table><tr><th>Site</th><th>Status</th><th>30-day uptime</th><th>Latency</th></tr>'+NODES.map(function(n){return"<tr><td>"+n[0]+'</td><td><span class="badge '+(n[1]==="Online"?"ok":"warn")+'">'+n[1]+"</span></td><td>"+n[2]+"</td><td>"+n[3]+"</td></tr>"}).join("")+"</table></div>"},
-Leads:function(){return'<h2>Customer leads</h2><p class="sub">Move each lead along the pipeline. A lead marked Won becomes a customer.</p><form class="add" id="lf"><input id="ln" placeholder="Lead name" aria-label="Lead name" required><select id="ls" aria-label="Source">'+S.mk.map(function(m){return"<option>"+m[0].replace("Referral program","Referral").replace("Door-to-door visits","Door-to-door").replace("Radio and posters","Radio").replace("Business partnerships","Partnership")+"</option>"}).join("")+'</select><select id="lp" aria-label="Plan"><option>Bronze</option><option>Silver</option><option>Gold</option><option>Premium</option></select><button class="p">Add lead</button></form><div class="grid k5" style="overflow-x:auto">'+LS.map(function(st,i){var L=S.leads.filter(function(l){return l.st===i});return'<div class="col card"><h3>'+st+" ("+L.length+")</h3>"+L.map(function(l){return'<div class="lead"><b>'+l.n+"</b><small>"+l.s+" · "+l.p+"</small>"+(i<4?'<button class="s" onclick="adv('+l.id+')">Move to '+LS[i+1]+"</button>":'<span class="ok">Customer</span>')+"</div>"}).join("")+"</div>"}).join("")+"</div>"},
-Goals:function(){return'<h2>Company goals</h2><p class="sub">Update the current value as results come in.</p><div class="grid">'+S.goals.map(function(g,i){var p=g.inv?Math.min(100,g.g/g.c*100):(g.min?(g.c-g.min)/(g.g-g.min)*100:g.c/g.g*100);p=Math.max(0,Math.min(100,p));return'<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>'+g.t+'</b><span>Target: '+(g.u==="KSh"?"KSh ":"")+g.g.toLocaleString("en-US")+(g.u==="%"?"%":"")+'</span></div><div class="bar" style="margin:10px 0"><i class="'+(p<60?"w":"")+'" style="width:'+p+'%"></i></div><label>Current: <input type="number" step="any" value="'+g.c+'" style="width:130px" onchange="setg('+i+',this.value)"></label> <span class="'+(p>=90?"ok":"warn")+'">'+Math.round(p)+"% there</span></div>"}).join("")+"</div>"},
-Marketing:function(){var T=S.mk.map(function(m){return{n:m[0],sp:m[1],ld:m[2],w:m[3],d:m[4],cpc:m[1]/m[3]}}),best=T.slice().sort(function(a,b){return a.cpc-b.cpc})[0],mx=Math.max.apply(null,T.map(function(t){return t.w}));return'<h2>Marketing methods</h2><p class="sub">Monthly spend and results per channel. The lowest cost per customer is highlighted.</p><div class="card scroll"><table><tr><th>Method</th><th>How we do it</th><th>Spend</th><th>Leads</th><th>Customers</th><th>Cost per customer</th></tr>'+T.map(function(t){return"<tr"+(t===best?' style="background:var(--track)"':"")+"><td><b>"+t.n+"</b></td><td>"+t.d+"</td><td>"+money(t.sp)+"</td><td>"+t.ld+"</td><td>"+t.w+"</td><td>"+money(t.cpc)+"</td></tr>"}).join("")+'</table></div><div class="card" style="margin-top:14px"><h2 style="font-size:1.05rem">Customers won by method</h2><div class="grid" style="gap:8px;margin-top:10px">'+T.map(function(t){return'<div style="display:flex;align-items:center;gap:8px;font-size:.88rem"><span style="width:150px">'+t.n+'</span><div class="bar" style="flex:1"><i style="width:'+t.w/mx*100+'%"></i></div><span>'+t.w+"</span></div>"}).join("")+"</div></div>"},
-Messages:function(){var r=recips(),a=AUD();return'<h2>Messages</h2><p class="sub">Send an SMS or WhatsApp message to a group of customers. Type {name}, {package} or {amount} to personalize each message.</p><div class="grid k2"><div class="card"><div class="grid" style="gap:12px"><label>Send to<br><select style="width:100%" onchange="M.aud=this.value;render()">'+a.map(function(o){return'<option value="'+o[0]+'"'+(o[0]===M.aud?" selected":"")+'>'+o[1]+"</option>"}).join("")+'</select></label><label>Channel<br><select style="width:100%" onchange="M.ch=this.value;render()">'+["SMS","WhatsApp"].map(function(c){return"<option"+(c===M.ch?" selected":"")+">"+c+"</option>"}).join("")+'</select></label><label>Template<br><select style="width:100%" onchange="tpl(this.value)"><option value="">Choose a template</option>'+Object.keys(TPL).map(function(k){return"<option>"+k+"</option>"}).join("")+'</select></label><label>Message<br><textarea rows="5" style="width:100%" oninput="M.txt=this.value;upd()">'+esc(M.txt)+'</textarea></label><div><button class="p" onclick="sendm()">Send to '+r.length+' customers</button></div></div></div><div class="card"><h2 style="font-size:1.05rem">Preview</h2><p id="pv" style="white-space:pre-wrap"></p><p class="sub" id="cc"></p><p class="sub">Messages are logged here. Automatic delivery needs an SMS gateway, so for now use the Open links below to send from your own phone.</p></div></div><div class="card scroll" style="margin-top:14px"><h2 style="font-size:1.05rem">Recipients ('+r.length+')</h2><table><tr><th>Customer</th><th>Phone</th><th>Package</th><th></th></tr>'+(r.length?r.map(function(c){var l=mlink(c);return"<tr><td>"+c.n+"</td><td>"+(c.ph||"-")+"</td><td>"+c.p+"</td><td>"+(l?'<a href="'+l+'" target="_blank" rel="noopener">Open in '+M.ch+"</a>":"No phone number")+"</td></tr>"}).join(""):'<tr><td colspan="4">No customers match this group.</td></tr>')+'</table></div><div class="card scroll" style="margin-top:14px"><h2 style="font-size:1.05rem">Sent messages</h2><table><tr><th>When</th><th>Channel</th><th>Group</th><th>Customers</th><th>Message</th></tr>'+(S.msgs.length?S.msgs.slice().reverse().map(function(m){return"<tr><td>"+m.t+"</td><td>"+m.ch+"</td><td>"+m.a+"</td><td>"+m.n+"</td><td>"+esc(m.x.slice(0,70))+"</td></tr>"}).join(""):'<tr><td colspan="5">No messages sent yet.</td></tr>')+"</table></div>"},
-Customers:function(){var c={};CS.forEach(function(s){c[s]=S.cust.filter(function(x){return x.st===s}).length});return'<h2>Customer development</h2><p class="sub">Track every customer from install to upgrade, and spot who needs a call.</p><div class="grid k4" style="margin-bottom:14px">'+CS.map(function(s){return'<div class="card kpi"><span>'+s+"</span><b>"+c[s]+"</b></div>"}).join("")+'</div><form class="add card" id="cf"><b style="width:100%">Add a customer</b><input id="cn" placeholder="Customer name" aria-label="Customer name" required><input id="cph" type="tel" placeholder="Phone, e.g. 0712 345 678" aria-label="Phone number" required><input id="cem" type="email" placeholder="Email (optional)" aria-label="Email"><select id="cp" aria-label="Package">'+Object.keys(PRICE).map(function(k){return"<option>"+k+"</option>"}).join("")+'</select><select id="cs" aria-label="Service type"><option>PPPoE</option><option>Hotspot</option></select><button class="p">Add customer</button></form><div class="card scroll"><table><tr><th>Customer</th><th>Contact</th><th>Package</th><th>Service</th><th>Stage</th><th>Last contact</th><th>Next step</th><th></th></tr>'+S.cust.map(function(x){return"<tr><td><b>"+x.n+"</b></td><td>"+(x.ph||"-")+(x.em?"<br><small>"+x.em+"</small>":"")+"</td><td>"+x.p+" · KSh "+(PRICE[x.p]||0).toLocaleString("en-US")+"</td><td><span class='badge ok'>"+(x.sv||"PPPoE")+"</span>"+'</td><td><select aria-label="Stage for '+x.n+'" onchange="setc('+x.id+',this.value)">'+CS.map(function(s){return"<option"+(s===x.st?" selected":"")+">"+s+"</option>"}).join("")+"</select></td><td>"+x.l+"</td><td>"+NEXT[x.st]+'</td><td><button class="s" onclick="logc('+x.id+')">Log contact</button> <button class="s" style="color:var(--red)" onclick="delc('+x.id+')">'+(dc===x.id?"Confirm delete":"Delete")+'</button></td></tr>'}).join("")+"</table></div>"},
-Billing:function(){var a=0,pd=0,od=0;S.inv.forEach(function(i){var m=PRICE[cname(i.c).p];a+=m;if(i.s==="Paid")pd+=m;if(i.s==="Overdue")od+=m});return'<h2>Billing</h2><p class="sub">Invoices for every customer. Mark payments as they arrive and send reminders.</p><div class="grid k4" style="margin-bottom:14px"><div class="card kpi"><span>Billed</span><b>'+money(a)+'</b></div><div class="card kpi"><span>Collected</span><b class="ok">'+money(pd)+'</b></div><div class="card kpi"><span>Outstanding</span><b>'+money(a-pd)+'</b></div><div class="card kpi"><span>Overdue</span><b class="bad">'+money(od)+'</b></div></div><p><button class="p" onclick="gen()">Generate Nov 2026 invoices</button></p><div class="card scroll"><table><tr><th>Invoice</th><th>Customer</th><th>Plan</th><th>Period</th><th>Amount</th><th>Status</th><th></th></tr>'+S.inv.slice().reverse().map(function(i){var c=cname(i.c);return"<tr><td>#"+i.id+"</td><td>"+c.n+"</td><td>"+c.p+"</td><td>"+i.m+"</td><td>"+money(PRICE[c.p])+'</td><td><span class="badge '+(i.s==="Paid"?"ok":i.s==="Due"?"warn":"bad")+'">'+i.s+"</span></td><td>"+(i.s==="Paid"?"":'<button class="s" onclick="pay('+i.id+')">Mark paid</button> <button class="s" onclick="rem('+i.id+')">Remind</button>')+"</td></tr>"}).join("")+"</table></div>"}};
-var MO=["Jun 2026","Jul 2026","Aug 2026","Sep 2026","Oct 2026","Nov 2026"],BM="Oct 2026",MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-function mp(m){var a=m.split(" "),N=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return a[1]+"-"+("0"+(N.indexOf(a[0])+1)).slice(-2)+"-"}
-function paid(i){return(i.pays||[]).reduce(function(a,p){return a+p.a},0)}
-function price(i){return PRICE[cname(i.c).p]||0}
-function ist(i){var p=paid(i);return p>=price(i)?"Paid":p>0?"Partial":(i.s==="Overdue"?"Overdue":"Due")}
-function bcl(s){return s==="Paid"?"ok":s==="Overdue"?"bad":"warn"}
-function fd(d,y){return new Date(d+"T00:00:00").toLocaleDateString("en-GB",y?{day:"numeric",month:"short",year:"numeric"}:{day:"numeric",month:"short"})}
-function invf(c,m){return S.inv.filter(function(i){return i.c===c&&i.m===m})[0]}
-function nid(){return S.inv.reduce(function(a,i){return Math.max(a,i.id)},1000)+1}
-function today(){return new Date().toISOString().slice(0,10)}
-function recpay(){var c=+$("#bc").value,m=$("#bm").value,d=$("#bd").value,amt=parseFloat($("#ba").value),pm=$("#bp").value;if(!c||!d){toast("Choose a customer and a date");return}var i=invf(c,m);if(!i){i={id:nid(),c:c,m:m,s:"Due",pays:[]};S.inv.push(i)}if(!i.pays)i.pays=[];var b=price(i)-paid(i);if(!(amt>0))amt=b;if(amt<=0){toast("That month is already paid in full");return}i.pays.push({d:d,a:amt,pm:pm});BM=m;save();render();toast(money(amt)+" recorded for "+cname(c).n)}
-function payfull(id){var i=S.inv.filter(function(x){return x.id===id})[0],b=price(i)-paid(i);if(b>0){i.pays=i.pays||[];i.pays.push({d:today(),a:b,pm:"Mobile money"});save();render();toast("Payment recorded for "+cname(i.c).n)}}
-function genm(){var n=0;S.cust.forEach(function(c){if(!invf(c.id,BM)){S.inv.push({id:nid(),c:c.id,m:BM,s:"Due",pays:[]});n++}});save();render();toast(n?n+" invoices created for "+BM:"Invoices for "+BM+" already exist")}
-V.Billing=function(){var I=S.inv.filter(function(i){return i.m===BM}),bl=0,cl=0,od=0,h=[];
-I.forEach(function(i){var p=price(i),q=Math.min(p,paid(i));bl+=p;cl+=q;if(ist(i)==="Overdue")od+=p-q});
-S.inv.forEach(function(i){(i.pays||[]).forEach(function(p){h.push({n:cname(i.c).n,m:i.m,d:p.d,a:p.a,pm:p.pm})})});
-h.sort(function(a,b){return a.d<b.d?1:-1});
-var mo=MO.map(function(m){return'<option'+(m===BM?' selected':'')+'>'+m+'</option>'}).join('');
-return'<h2>Billing</h2><p class="sub">Record each payment against a customer and a month. Totals, the monthly tracker and the payment history update straight away.</p>'
-+'<p><label>Month <select onchange="BM=this.value;render()">'+mo+'</select></label> <button class="s" onclick="genm()">Generate invoices for '+BM+'</button></p>'
-+'<div class="grid k4" style="margin-bottom:14px"><div class="card kpi"><span>Billed in '+BM+'</span><b>'+money(bl)+'</b></div><div class="card kpi"><span>Collected</span><b class="ok">'+money(cl)+'</b><span>'+(bl?Math.round(cl/bl*100):0)+'% of billed</span></div><div class="card kpi"><span>Outstanding</span><b>'+money(bl-cl)+'</b></div><div class="card kpi"><span>Overdue</span><b class="bad">'+money(od)+'</b></div></div>'
-+'<form class="add card" id="pf"><b style="width:100%">Record a payment</b><select id="bc" aria-label="Customer">'+S.cust.map(function(c){return'<option value="'+c.id+'">'+c.n+'</option>'}).join('')+'</select><select id="bm" aria-label="Month paid for">'+mo+'</select><input id="bd" type="date" aria-label="Date of payment" value="'+today()+'" required><input id="ba" type="number" min="1" placeholder="Amount (blank = full balance)" aria-label="Amount" style="min-width:220px"><select id="bp" aria-label="Payment method"><option>Mobile money</option><option>Cash</option><option>Bank transfer</option></select><button class="p">Record payment</button></form>'
-+'<div class="card scroll"><h2 style="font-size:1.05rem">Invoices for '+BM+'</h2><table><tr><th>Invoice</th><th>Customer</th><th>Package</th><th>Billed</th><th>Paid</th><th>Balance</th><th>Status</th><th>Last payment</th><th></th></tr>'+(I.length?I.map(function(i){var c=cname(i.c),p=price(i),q=paid(i),s=ist(i),l=(i.pays||[]).slice(-1)[0];return'<tr><td>#'+i.id+'</td><td><b>'+c.n+'</b></td><td>'+c.p+'</td><td>'+money(p)+'</td><td>'+money(q)+'</td><td>'+money(Math.max(0,p-q))+'</td><td><span class="badge '+bcl(s)+'">'+s+'</span></td><td>'+(l?fd(l.d,1):'-')+'</td><td>'+(s==='Paid'?'':'<button class="s" onclick="payfull('+i.id+')">Mark paid in full</button>')+'</td></tr>'}).join(''):'<tr><td colspan="9">No invoices for this month yet. Use Generate invoices.</td></tr>')+'</table></div>'
-+'<div class="card scroll" style="margin-top:14px"><h2 style="font-size:1.05rem">Monthly payment tracker</h2><table><tr><th>Customer</th>'+MO.map(function(m){return'<th>'+m+'</th>'}).join('')+'<th>Total paid</th><th>Balance owed</th></tr>'+S.cust.map(function(c){var tp=0,bo=0,cells=MO.map(function(m){var i=invf(c.id,m);if(!i)return'<td style="color:var(--muted)">-</td>';var s=ist(i),l=(i.pays||[]).slice(-1)[0],p=price(i),q=paid(i);tp+=q;bo+=Math.max(0,p-q);return'<td><span class="badge '+bcl(s)+'">'+s+'</span>'+(l?'<br><small>'+fd(l.d)+'</small>':'')+'</td>'}).join('');return'<tr><td><b>'+c.n+'</b></td>'+cells+'<td>'+money(tp)+'</td><td>'+money(bo)+'</td></tr>'}).join('')+'</table></div>'
-+'<div class="card scroll" style="margin-top:14px"><h2 style="font-size:1.05rem">Payment history</h2><table><tr><th>Date paid</th><th>Customer</th><th>Month</th><th>Amount</th><th>Method</th></tr>'+(h.length?h.slice(0,15).map(function(x){return'<tr><td>'+fd(x.d,1)+'</td><td>'+x.n+'</td><td>'+x.m+'</td><td>'+money(x.a)+'</td><td>'+x.pm+'</td></tr>'}).join(''):'<tr><td colspan="5">No payments recorded yet.</td></tr>')+'</table></div>'};
-function ea(s){return esc(s).split('"').join("&quot;")}
-function mku(n){return n.split(" ")[0].toLowerCase()+Math.floor(100+Math.random()*900)}
-function mkw(){var c="abcdefghjkmnpqrstuvwxyz23456789",s="";for(var i=0;i<8;i++)s+=c.charAt(Math.floor(Math.random()*c.length));return s}
-var SH=0,K=["loc","idn","alt","inst","eq","nt"];
-function setu(id,v){cname(id).u=v;save();toast("Saved")}
-function setw(id,v){cname(id).w=v;save();toast("Saved")}
-function setk(id,i,v){cname(id)[K[i]]=v;save();toast("Saved")}
-function genl(id){var c=cname(id);c.u=c.u||mku(c.n);c.w=mkw();save();render();toast("New password generated")}
-var TF=[["Location","loc","text","Area or street"],["ID number","idn","text","National ID"],["Alternate contact","alt","text","Name and phone"],["Installed on","inst","date",""],["Equipment serial","eq","text","Router or ONT serial"],["Notes","nt","text","Anything else"]];
-V["Login details"]=function(){return'<h2>Login details</h2><p class="sub">Connection logins for each customer: the PPPoE username and password, or the Hotspot voucher code. Edit a field and it saves automatically.</p><p><button class="s" onclick="SH=!SH;render()">'+(SH?"Hide":"Show")+' passwords</button></p><div class="card scroll"><table><tr><th>Customer</th><th>Service</th><th>Username or voucher</th><th>Password</th><th></th></tr>'+S.cust.map(function(c){return'<tr><td><b>'+c.n+'</b></td><td><span class="badge ok">'+(c.sv||"PPPoE")+'</span></td><td><input value="'+ea(c.u||"")+'" aria-label="Username for '+c.n+'" onchange="setu('+c.id+',this.value)"></td><td><input type="'+(SH?"text":"password")+'" value="'+ea(c.w||"")+'" aria-label="Password for '+c.n+'" onchange="setw('+c.id+',this.value)"></td><td><button class="s" onclick="genl('+c.id+')">'+(c.w?"New password":"Generate")+'</button></td></tr>'}).join('')+'</table></div><p class="sub" style="margin-top:12px">Passwords are stored only in this browser. Do not keep real customer passwords here.</p>'};
-V["Tertiary info"]=function(){return'<h2>Tertiary information</h2><p class="sub">Extra details kept on each customer: location, ID, an alternate contact, installation date, equipment and notes. Edit a field and it saves automatically.</p><div class="card scroll"><table><tr><th>Customer</th>'+TF.map(function(f){return'<th>'+f[0]+'</th>'}).join('')+'</tr>'+S.cust.map(function(c){return'<tr><td><b>'+c.n+'</b></td>'+TF.map(function(f,i){return'<td><input type="'+f[2]+'" value="'+ea(c[f[1]]||"")+'" placeholder="'+f[3]+'" aria-label="'+f[0]+' for '+c.n+'" onchange="setk('+c.id+','+i+',this.value)" style="min-width:140px"></td>'}).join('')+'</tr>'}).join('')+'</table></div>'};
-function render(){$("#tabs").innerHTML=TABS.map(function(t){return'<button role="tab" aria-selected="'+(t===tab)+'" onclick="go(\''+t+"')\">"+t+"</button>"}).join("");$("#view").innerHTML=V[tab]();if(tab==="Messages")upd();var f=$("#lf");if(f)f.onsubmit=function(e){e.preventDefault();S.leads.push({id:Date.now(),n:$("#ln").value.trim(),s:$("#ls").value,p:$("#lp").value,st:0});save();render();toast("Lead added")};var g=$("#cf");if(g)g.onsubmit=function(e){e.preventDefault();addc()};var q=$("#pf");if(q)q.onsubmit=function(e){e.preventDefault();recpay()}}
-function go(t){tab=t;render()}
-function adv(id){var l=S.leads.filter(function(x){return x.id===id})[0];l.st++;if(l.st===4&&!l.c){l.c=1;S.cust.push({id:Date.now(),n:l.n,p:l.p,st:"Onboarding",l:"Today"});toast(l.n+" is now a customer")}save();render()}
-function setg(i,v){S.goals[i].c=parseFloat(v)||0;save();render()}
-function setc(id,v){cname(id).st=v;save();render()}
-var TPL={"Billing reminder":"Hello {name}, your {package} bill of {amount} is due. Please pay before the due date to avoid disconnection. Thank you, SAF-TECH.","Service outage":"Hello {name}, we are fixing a network fault in your area and service will be restored shortly. We apologize for the inconvenience. SAF-TECH.","Upgrade offer":"Hello {name}, upgrade from {package} to a faster package this month and get your first week free. Reply YES to upgrade. SAF-TECH.","Welcome":"Welcome to SAF-TECH, {name}! Your {package} package is being set up and our technician will contact you shortly."};
-var M={aud:"all",ch:"SMS",txt:TPL["Service outage"]};
-function esc(s){return String(s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;")}
-function AUD(){return[["all","All customers"]].concat(CS.map(function(s){return["st:"+s,"Stage: "+s]}),Object.keys(PRICE).map(function(p){return["pl:"+p,"Package: "+p]}),[["sv:PPPoE","Service: PPPoE"],["sv:Hotspot","Service: Hotspot"],["unpaid","Customers with unpaid invoices"]])}
-function recips(){var a=M.aud;return S.cust.filter(function(x){if(a==="all")return 1;var k=a.split(":");if(k[0]==="st")return x.st===k[1];if(k[0]==="pl")return x.p===k[1];if(k[0]==="sv")return(x.sv||"PPPoE")===k[1];return S.inv.some(function(i){return i.c===x.id&&ist(i)!=="Paid"})})}
-function mg(t,x){return t.split("{name}").join(x.n.split(" ")[0]).split("{package}").join(x.p).split("{amount}").join("KSh "+(PRICE[x.p]||0).toLocaleString("en-US"))}
-function mlink(x){var d=(x.ph||"").split(" ").join("").split("-").join("");if(!d)return"";if(d.charAt(0)==="0")d="254"+d.slice(1);var t=encodeURIComponent(mg(M.txt,x));return M.ch==="SMS"?"sms:+"+d+"?body="+t:"https://wa.me/"+d+"?text="+t}
-function upd(){var r=recips(),n=M.txt.length;$("#pv").textContent=r.length?mg(M.txt,r[0]):"No customers match this group.";$("#cc").textContent=n+" characters"+(M.ch==="SMS"?" \u00b7 "+Math.max(1,Math.ceil(n/160))+" SMS per customer":"")+(r.length?" \u00b7 preview for "+r[0].n:"")}
-function tpl(k){if(TPL[k]){M.txt=TPL[k];render()}}
-function sendm(){var r=recips();if(!r.length||!M.txt.trim()){toast("Choose a group and write a message first");return}var a=AUD().filter(function(o){return o[0]===M.aud})[0][1];S.msgs.push({t:new Date().toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}),ch:M.ch,a:a,n:r.length,x:M.txt});save();render();toast("Logged "+r.length+" "+M.ch+" messages")}
-var dc=0;
-function addc(){var n=$("#cn").value.trim(),ph=$("#cph").value.trim();if(!n||!ph)return;S.cust.push({id:Date.now(),n:n,ph:ph,em:$("#cem").value.trim(),p:$("#cp").value,sv:$("#cs").value,st:"Onboarding",l:"Today",u:mku(n),w:mkw()});save();render();toast(n+" added")}
-function delc(id){if(dc!==id){dc=id;render();toast("Click Delete again to confirm");return}var n=cname(id).n;S.cust=S.cust.filter(function(x){return x.id!==id});S.inv=S.inv.filter(function(i){return i.c!==id});dc=0;save();render();toast(n+" deleted")}
-function logc(id){cname(id).l="Today";save();render();toast("Contact logged")}
-function pay(id){S.inv.forEach(function(i){if(i.id===id)i.s="Paid"});save();render();toast("Payment recorded")}
-function rem(id){toast("Reminder sent for invoice #"+id)}
-function gen(){var n=0,m=S.inv.reduce(function(a,i){return Math.max(a,i.id)},1000);S.cust.forEach(function(c){if(!S.inv.some(function(i){return i.c===c.id&&i.m==="Nov 2026"})){S.inv.push({id:++m,c:c.id,m:"Nov 2026",s:"Due"});n++}});save();render();toast(n?n+" invoices created":"All invoices already exist")}
-$("#reset").onclick=function(e){e.preventDefault();S=seed();fix();save();render();toast("Sample data restored")};
-render();
+const SB_URL = "https://rjzeqptfwxzhuofsbamc.supabase.co";
+const SB_KEY = "sb_publishable_KlijfrZpv4RGZZOTzgL3ag_q4Gpf0wU";
+const db = supabase.createClient(SB_URL, SB_KEY);
+
+const TABS = ["Overview","Leads","Goals","Marketing","Customers","Login details","Tertiary info","Billing","Messages","AI assistant"];
+const CS = ["Onboarding","Active","Upsell","At risk"];
+const LS = ["New","Contacted","Site survey","Quoted","Won"];
+const NEXT = {"Onboarding":"Confirm install and Wi-Fi setup","Active":"Check-in call at 90 days","Upsell":"Offer a faster plan","At risk":"Call within 48 hours"};
+const MO = ["Jun 2026","Jul 2026","Aug 2026","Sep 2026","Oct 2026","Nov 2026"];
+const TPL = {
+  "Billing reminder":"Hello {name}, your {package} bill of {amount} is due. Please pay before the due date to avoid disconnection. Thank you, SAF-TECH.",
+  "Service outage":"Hello {name}, we are fixing a network fault in your area and service will be restored shortly. We apologize for the inconvenience. SAF-TECH.",
+  "Upgrade offer":"Hello {name}, upgrade from {package} to a faster package this month and get your first week free. Reply YES to upgrade. SAF-TECH.",
+  "Welcome":"Welcome to SAF-TECH, {name}! Your {package} package is being set up and our technician will contact you shortly."
+};
+const TF = [["Location","location","text","Area or street"],["ID number","national_id","text","National ID"],["Alternate contact","alternate_contact","text","Name and phone"],["Installed on","installed_on","date",""],["Equipment serial","equipment_serial","text","Router or ONT serial"],["Notes","notes","text","Anything else"]];
+
+let S = {pk:{},cust:[],leads:[],inv:[],pays:[],msgs:[],goals:[],mk:[],actions:[],summaries:[]};
+let tab = "Overview", BM = "Oct 2026", SH = false, dc = 0;
+let M = {aud:"all", ch:"SMS", txt:TPL["Service outage"]};
+let AI = {summary:"", scope:"Overall operations", note:""};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "KSh " + Math.round(n || 0).toLocaleString("en-US");
+const today = () => new Date().toISOString().slice(0,10);
+const rnd = (len, chars) => { let s=""; for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length)); return s; };
+const price = c => S.pk[c.package] || 0;
+const cust = id => S.cust.find(c => c.id === id) || {name:"Unknown", package:"Bronze"};
+const paid = inv => S.pays.filter(p => p.invoice_id === inv.id).reduce((a,p) => a + p.amount, 0);
+const invPrice = inv => price(cust(inv.customer_id));
+const status = inv => { const p = paid(inv), pr = invPrice(inv); return p >= pr ? "Paid" : p > 0 ? "Partial" : inv.status; };
+const bcls = s => s === "Paid" ? "ok" : s === "Overdue" ? "bad" : "warn";
+const fdate = d => d ? new Date(d + "T00:00:00").toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"}) : "-";
+const invFor = (cid, m) => S.inv.find(i => i.customer_id === cid && i.billing_month === m);
+
+function toast(t){ const e=$("#toast"); e.textContent=t; e.classList.add("on"); clearTimeout(window._tt); window._tt=setTimeout(()=>e.classList.remove("on"),2200); }
+
+async function run(promise, msg){
+  const {error} = await promise;
+  if (error) { toast(error.message); return false; }
+  if (msg) toast(msg);
+  await load(); render();
+  return true;
+}
+
+async function load(){
+  const [pk,cu,le,iv,pa,me,go,mk,ac,su] = await Promise.all([
+    db.from("packages").select("*"),
+    db.from("customers").select("*").order("id"),
+    db.from("leads").select("*").order("id"),
+    db.from("invoices").select("*").order("id"),
+    db.from("payments").select("*").order("id"),
+    db.from("messages").select("*").order("sent_at",{ascending:false}).limit(50),
+    db.from("goals").select("*").order("id"),
+    db.from("marketing_channels").select("*").order("id"),
+    db.from("ai_actions").select("*").order("created_at",{ascending:false}).limit(20),
+    db.from("ai_summaries").select("*").order("created_at",{ascending:false}).limit(5)
+  ]);
+  const bad = [pk,cu,le,iv,pa,me,go,mk,ac,su].find(r => r.error);
+  if (bad) throw bad.error;
+  S = {
+    pk: Object.fromEntries(pk.data.map(p => [p.name, p.monthly_price])),
+    cust: cu.data, leads: le.data, inv: iv.data, pays: pa.data,
+    msgs: me.data, goals: go.data, mk: mk.data, actions: ac.data, summaries: su.data
+  };
+}
+
+function go(t){ tab = t; render(); }
+
+function render(){
+  $("#tabs").innerHTML = TABS.map(t => `<button role="tab" aria-selected="${t===tab}" onclick="go('${t}')">${t}</button>`).join("");
+  $("#view").innerHTML = V[tab]();
+}
+
+const V = {};
+
+V["Overview"] = () => {
+  const mrr = S.cust.reduce((a,c) => a + price(c), 0);
+  const outstanding = S.inv.reduce((a,i) => a + Math.max(0, invPrice(i) - paid(i)), 0);
+  const counts = CS.map(s => `<div class="card kpi"><span>${s}</span><b>${S.cust.filter(c=>c.stage===s).length}</b></div>`).join("");
+  const seed = S.cust.length === 0 ? `<div class="card"><b>No customer data yet.</b><p class="sub">Load the sample customers, leads, goals and marketing data to try the console.</p><button class="p" onclick="loadSample()">Load sample data</button></div>` : "";
+  return `<h2>System analytics</h2><p class="sub">Live figures from the database.</p>${seed}
+  <div class="grid k4"><div class="card kpi"><span>Customers</span><b>${S.cust.length}</b></div><div class="card kpi"><span>Monthly recurring revenue</span><b>${money(mrr)}</b></div><div class="card kpi"><span>Outstanding</span><b>${money(outstanding)}</b></div><div class="card kpi"><span>Open leads</span><b>${S.leads.filter(l=>l.stage<4).length}</b></div></div>
+  <div class="grid k4" style="margin-top:14px">${counts}</div>`;
+};
+
+V["Leads"] = () => `<h2>Customer leads</h2><p class="sub">Move each lead along the pipeline. A lead marked Won becomes a customer.</p>
+<form class="add card" onsubmit="addLead(event)"><input id="ln" placeholder="Lead name" aria-label="Lead name" required>
+<select id="ls" aria-label="Source">${["Referral","Social media","Door-to-door","Radio","Google ads","Partnership"].map(o=>`<option>${o}</option>`).join("")}</select>
+<select id="lp" aria-label="Plan">${Object.keys(S.pk).map(o=>`<option>${o}</option>`).join("")}</select><button class="p">Add lead</button></form>
+<div class="grid k5 scroll">${LS.map((st,i)=>{const L=S.leads.filter(l=>l.stage===i);return `<div class="card"><h3 style="font-size:.95rem;margin:0 0 8px">${st} (${L.length})</h3>${L.map(l=>`<div class="lead"><b>${esc(l.name)}</b><small>${esc(l.source)} · ${esc(l.package)}</small>${i<4?`<button class="s" onclick="moveLead(${l.id})">Move to ${LS[i+1]}</button>`:'<span class="ok">Customer</span>'}</div>`).join("")}</div>`}).join("")}</div>`;
+
+V["Goals"] = () => `<h2>Company goals</h2><p class="sub">Update the current value as results come in.</p><div class="grid">${S.goals.map(g=>{
+  let p = g.lower_is_better ? (g.target_value / g.current_value) * 100 : g.minimum_value != null ? (g.current_value - g.minimum_value)/(g.target_value - g.minimum_value)*100 : g.current_value/g.target_value*100;
+  p = Math.max(0, Math.min(100, p));
+  return `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>${esc(g.title)}</b><span>Target: ${g.unit==="KSh"?"KSh ":""}${Number(g.target_value).toLocaleString("en-US")}${g.unit==="%"?"%":""}</span></div><div class="bar" style="margin:10px 0"><i class="${p<60?"w":""}" style="width:${p}%"></i></div><label>Current: <input type="number" step="any" value="${g.current_value}" style="width:130px" onchange="setGoal(${g.id},this.value)"></label> <span class="${p>=90?"ok":"warn"}">${Math.round(p)}% there</span></div>`}).join("")}</div>`;
+
+V["Marketing"] = () => {
+  const best = S.mk.filter(t=>t.customers>0).sort((a,b)=>a.spend/a.customers - b.spend/b.customers)[0];
+  const mx = Math.max(1, ...S.mk.map(t=>t.customers));
+  return `<h2>Marketing methods</h2><p class="sub">Monthly spend and results per channel. The lowest cost per customer is highlighted.</p>
+  <div class="card scroll"><table><tr><th>Method</th><th>How we do it</th><th>Spend</th><th>Leads</th><th>Customers</th><th>Cost per customer</th></tr>
+  ${S.mk.map(t=>`<tr${t===best?' style="background:var(--track)"':""}><td><b>${esc(t.name)}</b></td><td>${esc(t.description)}</td><td>${money(t.spend)}</td><td>${t.leads}</td><td>${t.customers}</td><td>${t.customers?money(t.spend/t.customers):"-"}</td></tr>`).join("")}</table></div>
+  <div class="card"><h2 style="font-size:1.05rem">Customers won by method</h2>${S.mk.map(t=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:.9rem"><span style="width:160px">${esc(t.name)}</span><div class="bar" style="flex:1"><i style="width:${t.customers/mx*100}%"></i></div><span>${t.customers}</span></div>`).join("")}</div>`;
+};
+
+V["Customers"] = () => {
+  const counts = CS.map(s => `<div class="card kpi"><span>${s}</span><b>${S.cust.filter(c=>c.stage===s).length}</b></div>`).join("");
+  return `<h2>Customer development</h2><p class="sub">Track every customer from install to upgrade, and spot who needs a call.</p>
+  <div class="grid k4" style="margin-bottom:14px">${counts}</div>
+  <form class="add card" onsubmit="addCustomer(event)"><b style="width:100%">Add a customer</b>
+  <input id="cn" placeholder="Customer name" aria-label="Customer name" required>
+  <input id="cph" type="tel" placeholder="Phone, e.g. 0712 345 678" aria-label="Phone" required>
+  <input id="cem" type="email" placeholder="Email (optional)" aria-label="Email">
+  <select id="cp" aria-label="Package">${Object.keys(S.pk).map(k=>`<option>${k}</option>`).join("")}</select>
+  <select id="cs" aria-label="Service"><option>PPPoE</option><option>Hotspot</option></select><button class="p">Add customer</button></form>
+  <div class="card scroll"><table><tr><th>Customer</th><th>Contact</th><th>Package</th><th>Service</th><th>Stage</th><th>Last contact</th><th>Next step</th><th></th></tr>
+  ${S.cust.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.phone||"-")}${c.email?`<br><small>${esc(c.email)}</small>`:""}</td><td>${c.package} · ${money(price(c))}</td><td><span class="badge ok">${c.service}</span></td>
+  <td><select aria-label="Stage for ${esc(c.name)}" onchange="setField('customers',${c.id},'stage',this.value)">${CS.map(s=>`<option${s===c.stage?" selected":""}>${s}</option>`).join("")}</select></td>
+  <td>${fdate(c.last_contact)}</td><td>${NEXT[c.stage]}</td>
+  <td><button class="s" onclick="logContact(${c.id})">Log contact</button> <button class="s bad" onclick="delCustomer(${c.id})">${dc===c.id?"Confirm delete":"Delete"}</button></td></tr>`).join("")}</table></div>`;
+};
+
+V["Login details"] = () => `<h2>Login details</h2><p class="sub">PPPoE usernames and passwords, or hotspot voucher codes. Edit a field and it saves automatically.</p>
+<p><button class="s" onclick="SH=!SH;render()">${SH?"Hide":"Show"} passwords</button></p>
+<div class="card scroll"><table><tr><th>Customer</th><th>Service</th><th>Username</th><th>Password</th><th></th></tr>
+${S.cust.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td><span class="badge ok">${c.service}</span></td>
+<td><input value="${esc(c.pppoe_username||"")}" aria-label="Username for ${esc(c.name)}" onchange="setField('customers',${c.id},'pppoe_username',this.value)"></td>
+<td><input type="${SH?"text":"password"}" value="${esc(c.pppoe_password||"")}" aria-label="Password for ${esc(c.name)}" onchange="setField('customers',${c.id},'pppoe_password',this.value)"></td>
+<td><button class="s" onclick="newLogin(${c.id})">${c.pppoe_password?"New password":"Generate"}</button></td></tr>`).join("")}</table></div>`;
+
+V["Tertiary info"] = () => `<h2>Tertiary information</h2><p class="sub">Extra details kept on each customer. Edit a field and it saves automatically.</p>
+<div class="card scroll"><table><tr><th>Customer</th>${TF.map(f=>`<th>${f[0]}</th>`).join("")}</tr>
+${S.cust.map(c=>`<tr><td><b>${esc(c.name)}</b></td>${TF.map(f=>`<td><input type="${f[2]}" value="${esc(c[f[1]]||"")}" placeholder="${f[3]}" aria-label="${f[0]} for ${esc(c.name)}" onchange="setField('customers',${c.id},'${f[1]}',this.value)" style="min-width:140px"></td>`).join("")}</tr>`).join("")}</table></div>`;
+
+V["Billing"] = () => {
+  const I = S.inv.filter(i => i.billing_month === BM);
+  let billed=0, collected=0, overdue=0;
+  I.forEach(i => { const p=invPrice(i), q=Math.min(p,paid(i)); billed+=p; collected+=q; if(status(i)==="Overdue") overdue+=p-q; });
+  const history = S.pays.slice().reverse().slice(0,15);
+  const mo = MO.map(m=>`<option${m===BM?" selected":""}>${m}</option>`).join("");
+  return `<h2>Billing</h2><p class="sub">Record each payment against a customer and a month.</p>
+  <p><label>Month <select onchange="BM=this.value;render()">${mo}</select></label> <button class="s" onclick="genInvoices()">Generate invoices for ${BM}</button></p>
+  <div class="grid k4" style="margin-bottom:14px"><div class="card kpi"><span>Billed in ${BM}</span><b>${money(billed)}</b></div><div class="card kpi"><span>Collected</span><b class="ok">${money(collected)}</b></div><div class="card kpi"><span>Outstanding</span><b>${money(billed-collected)}</b></div><div class="card kpi"><span>Overdue</span><b class="bad">${money(overdue)}</b></div></div>
+  <form class="add card" onsubmit="recordPay(event)"><b style="width:100%">Record a payment</b>
+  <select id="bc" aria-label="Customer">${S.cust.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+  <select id="bm" aria-label="Month paid for">${mo}</select>
+  <input id="bd" type="date" value="${today()}" aria-label="Date paid" required>
+  <input id="ba" type="number" min="1" placeholder="Amount (blank = full balance)" aria-label="Amount" style="min-width:220px">
+  <select id="bp" aria-label="Method"><option>Mobile money</option><option>Cash</option><option>Bank transfer</option></select><button class="p">Record payment</button></form>
+  <div class="card scroll"><h2 style="font-size:1.05rem">Invoices for ${BM}</h2><table><tr><th>Customer</th><th>Plan</th><th>Billed</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr>
+  ${I.length ? I.map(i=>{const c=cust(i.customer_id),p=invPrice(i),q=paid(i),s=status(i);return `<tr><td><b>${esc(c.name)}</b></td><td>${c.package}</td><td>${money(p)}</td><td>${money(q)}</td><td>${money(Math.max(0,p-q))}</td><td><span class="badge ${bcls(s)}">${s}</span></td><td>${s==="Paid"?"":`<button class="s" onclick="markPaid(${i.id})">Mark paid in full</button>`}</td></tr>`}).join("") : `<tr><td colspan="7">No invoices for this month. Use Generate invoices.</td></tr>`}</table></div>
+  <div class="card scroll"><h2 style="font-size:1.05rem">Payment history</h2><table><tr><th>Date</th><th>Customer</th><th>Amount</th><th>Method</th></tr>
+  ${history.length ? history.map(p=>{const inv=S.inv.find(i=>i.id===p.invoice_id);return `<tr><td>${fdate(p.paid_on)}</td><td>${inv?esc(cust(inv.customer_id).name):"-"}</td><td>${money(p.amount)}</td><td>${p.method}</td></tr>`}).join("") : `<tr><td colspan="4">No payments recorded yet.</td></tr>`}</table></div>`;
+};
+
+const AUD = () => [["all","All customers"], ...CS.map(s=>["st:"+s,"Stage: "+s]), ...Object.keys(S.pk).map(p=>["pl:"+p,"Package: "+p]), ["sv:PPPoE","Service: PPPoE"], ["sv:Hotspot","Service: Hotspot"], ["unpaid","Customers with unpaid invoices"]];
+function recips(){
+  const a = M.aud;
+  return S.cust.filter(c => {
+    if (a==="all") return true;
+    const [k,v] = a.split(":");
+    if (k==="st") return c.stage===v;
+    if (k==="pl") return c.package===v;
+    if (k==="sv") return c.service===v;
+    return S.inv.some(i => i.customer_id===c.id && status(i)!=="Paid");
+  });
+}
+const fill = (t,c) => t.split("{name}").join(c.name.split(" ")[0]).split("{package}").join(c.package).split("{amount}").join(money(price(c)));
+V["Messages"] = () => {
+  const r = recips();
+  return `<h2>Messages</h2><p class="sub">Send an SMS or WhatsApp message to a group. Type {name}, {package} or {amount} to personalize.</p>
+  <div class="grid k2"><div class="card"><div class="grid" style="gap:12px">
+  <label>Send to<br><select style="width:100%" onchange="M.aud=this.value;render()">${AUD().map(o=>`<option value="${o[0]}"${o[0]===M.aud?" selected":""}>${o[1]}</option>`).join("")}</select></label>
+  <label>Channel<br><select style="width:100%" onchange="M.ch=this.value;render()">${["SMS","WhatsApp"].map(c=>`<option${c===M.ch?" selected":""}>${c}</option>`).join("")}</select></label>
+  <label>Template<br><select style="width:100%" onchange="M.txt=TPL[this.value]||M.txt;render()"><option value="">Choose a template</option>${Object.keys(TPL).map(k=>`<option>${k}</option>`).join("")}</select></label>
+  <label>Message<br><textarea rows="5" style="width:100%" oninput="M.txt=this.value;preview()">${esc(M.txt)}</textarea></label>
+  <div><button class="p" onclick="sendMsg()" ${r.length?"":"disabled"}>Log message to ${r.length} customers</button></div></div></div>
+  <div class="card"><h2 style="font-size:1.05rem">Preview</h2><p id="pv" class="pre"></p><p class="sub" id="cc"></p><p class="sub">Messages are logged here. Automatic delivery needs an SMS gateway. Until then, send from your phone using the links below.</p></div></div>
+  <div class="card scroll"><h2 style="font-size:1.05rem">Recipients (${r.length})</h2><table><tr><th>Customer</th><th>Phone</th><th>Package</th><th></th></tr>
+  ${r.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone||"-")}</td><td>${c.package}</td><td>${waLink(c)}</td></tr>`).join("") || `<tr><td colspan="4">No customers match this group.</td></tr>`}</table></div>
+  <div class="card scroll"><h2 style="font-size:1.05rem">Logged messages</h2><table><tr><th>When</th><th>Channel</th><th>Group</th><th>Customers</th><th>Message</th></tr>
+  ${S.msgs.map(m=>`<tr><td>${fdate(m.sent_at.slice(0,10))}</td><td>${m.channel}</td><td>${esc(m.audience)}</td><td>${m.recipient_count}</td><td>${esc(m.body.slice(0,70))}</td></tr>`).join("") || `<tr><td colspan="5">No messages logged yet.</td></tr>`}</table></div>`;
+};
+function preview(){
+  const r = recips();
+  $("#pv").textContent = r.length ? fill(M.txt, r[0]) : "No customers match this group.";
+  $("#cc").textContent = M.txt.length + " characters" + (M.ch==="SMS" ? " · " + Math.max(1,Math.ceil(M.txt.length/160)) + " SMS per customer" : "");
+}
+function waLink(c){
+  let d = (c.phone||"").replace(/[\s-]/g,"");
+  if (!d) return "";
+  if (d[0]==="0") d = "254" + d.slice(1);
+  const t = encodeURIComponent(fill(M.txt, c));
+  return `<a href="${M.ch==="SMS" ? "sms:+"+d+"?body="+t : "https://wa.me/"+d+"?text="+t}" target="_blank" rel="noopener">Open in ${M.ch}</a>`;
+}
+setTimeout(()=>{ if(tab==="Messages") preview(); }, 0);
+
+V["AI assistant"] = () => {
+  const pending = S.actions.filter(a => a.status === "pending");
+  return `<h2>AI assistant</h2><p class="sub">The assistant reads your operations data and can summarize it or propose actions. It never changes data itself. Each proposal waits for your approval.</p>
+  <div class="grid k2">
+  <div class="card"><h2 style="font-size:1.05rem">Summary</h2>
+    <form class="add" onsubmit="summarize(event)"><input id="sc" value="${esc(AI.scope)}" aria-label="Summary scope"><button class="p">Summarize</button></form>
+    <p class="pre" id="ai-sum">${esc(AI.summary || (S.summaries[0] ? S.summaries[0].content : "No summary yet."))}</p></div>
+  <div class="card"><h2 style="font-size:1.05rem">Propose an action</h2>
+    <form class="add" onsubmit="propose(event)"><input id="pi" placeholder="e.g. Remind customers with overdue invoices" aria-label="Instruction" required><button class="p">Propose</button></form>
+    <p class="sub">${esc(AI.note)}</p></div></div>
+  <div class="card scroll"><h2 style="font-size:1.05rem">Awaiting approval (${pending.length})</h2><table><tr><th>Action</th><th>Details</th><th>Why</th><th></th></tr>
+  ${pending.map(a=>`<tr><td><b>${esc(a.action_type)}</b></td><td><code>${esc(JSON.stringify(a.payload))}</code></td><td>${esc(a.rationale)}</td><td><button class="p" onclick="decide(${a.id},true)">Approve</button> <button class="s" onclick="decide(${a.id},false)">Reject</button></td></tr>`).join("") || `<tr><td colspan="4">Nothing waiting for approval.</td></tr>`}</table></div>
+  <div class="card scroll"><h2 style="font-size:1.05rem">Recent decisions</h2><table><tr><th>Action</th><th>Status</th><th>Decided</th></tr>
+  ${S.actions.filter(a=>a.status!=="pending").slice(0,10).map(a=>`<tr><td>${esc(a.action_type)}</td><td><span class="badge ${a.status==="approved"?"ok":a.status==="rejected"?"warn":"bad"}">${a.status}</span></td><td>${fdate((a.decided_at||"").slice(0,10))}</td></tr>`).join("") || `<tr><td colspan="3">None yet.</td></tr>`}</table></div>`;
+};
+
+async function callAI(body){
+  const {data:{session}} = await db.auth.getSession();
+  if (!session) throw new Error("Sign in again");
+  const r = await fetch(SB_URL + "/functions/v1/ai-assistant", {
+    method: "POST",
+    headers: {"Authorization":"Bearer "+session.access_token, "apikey":SB_KEY, "Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new Error(j.error || "Request failed");
+  return j;
+}
+async function summarize(e){
+  e.preventDefault();
+  AI.scope = $("#sc").value.trim() || "Overall operations";
+  AI.summary = "Working...";
+  render();
+  try { const j = await callAI({action:"summarize", scope:AI.scope}); AI.summary = j.content; await load(); render(); }
+  catch(err){ AI.summary = ""; toast(err.message); render(); }
+}
+async function propose(e){
+  e.preventDefault();
+  try {
+    const j = await callAI({action:"propose", instruction:$("#pi").value.trim()});
+    AI.note = j.proposed ? "Proposal added to the approval list." : j.reason;
+    await load(); render();
+  } catch(err){ toast(err.message); }
+}
+async function decide(id, approve){
+  try {
+    const j = await callAI({action:"decide", id, approve});
+    toast(j.status === "approved" ? "Approved and applied" : j.status === "rejected" ? "Rejected" : "Failed: " + (j.error||""));
+    await load(); render();
+  } catch(err){ toast(err.message); }
+}
+
+async function addLead(e){
+  e.preventDefault(); const f=e.target;
+  await run(db.from("leads").insert({name:f.ln.value.trim(), source:f.ls.value, package:f.lp.value, stage:0}), "Lead added");
+}
+async function moveLead(id){
+  const l = S.leads.find(x=>x.id===id);
+  if (l.stage < 3) return run(db.from("leads").update({stage:l.stage+1}).eq("id",id), "Moved to " + LS[l.stage+1]);
+  const {data, error} = await db.from("customers").insert({name:l.name, package:l.package, stage:"Onboarding", service:"PPPoE", last_contact:today()}).select().single();
+  if (error) return toast(error.message);
+  await run(db.from("leads").update({stage:4, customer_id:data.id}).eq("id",id), l.name + " is now a customer");
+}
+function genLogin(){ return {pppoe_username: rnd(6,"abcdefghijkmnpqrstuvwxyz") + rnd(3,"23456789"), pppoe_password: rnd(8,"abcdefghjkmnpqrstuvwxyz23456789")}; }
+async function addCustomer(e){
+  e.preventDefault(); const f=e.target;
+  const row = {name:f.cn.value.trim(), phone:f.cph.value.trim(), email:f.cem.value.trim()||null, package:f.cp.value, service:f.cs.value, stage:"Onboarding", last_contact:today(), ...genLogin()};
+  await run(db.from("customers").insert(row), row.name + " added");
+}
+async function setField(table, id, field, value){
+  await run(db.from(table).update({[field]: value === "" ? null : value}).eq("id", id), "Saved");
+}
+async function logContact(id){ await run(db.from("customers").update({last_contact:today()}).eq("id",id), "Contact logged"); }
+async function newLogin(id){ await run(db.from("customers").update(genLogin()).eq("id",id), "New login generated"); }
+async function delCustomer(id){
+  if (dc !== id){ dc = id; render(); toast("Click Delete again to confirm"); return; }
+  dc = 0;
+  await db.from("leads").update({customer_id:null}).eq("customer_id", id);
+  await run(db.from("customers").delete().eq("id", id), "Customer deleted");
+}
+async function setGoal(id, v){ await run(db.from("goals").update({current_value: parseFloat(v)||0}).eq("id",id), "Saved"); }
+
+async function ensureInvoice(cid, month){
+  const existing = invFor(cid, month);
+  if (existing) return existing;
+  const {data, error} = await db.from("invoices").insert({customer_id:cid, billing_month:month, status:"Due"}).select().single();
+  if (error) throw error;
+  return data;
+}
+async function recordPay(e){
+  e.preventDefault(); const f=e.target;
+  const cid=+f.bc.value, month=f.bm.value, date=f.bd.value, amt=parseFloat(f.ba.value), method=f.bp.value;
+  try {
+    const inv = await ensureInvoice(cid, month);
+    const balance = invPrice(inv) - paid(inv);
+    const amount = amt > 0 ? amt : balance;
+    if (!(amount > 0)) return toast("That month is already paid in full");
+    BM = month;
+    await run(db.from("payments").insert({invoice_id:inv.id, amount:Math.round(amount), method, paid_on:date}), money(amount) + " recorded");
+  } catch(err){ toast(err.message); }
+}
+async function markPaid(invId){
+  const inv = S.inv.find(i=>i.id===invId);
+  const balance = invPrice(inv) - paid(inv);
+  if (balance > 0) await run(db.from("payments").insert({invoice_id:invId, amount:balance, method:"Mobile money", paid_on:today()}), "Marked paid in full");
+}
+async function genInvoices(){
+  const rows = S.cust.map(c => ({customer_id:c.id, billing_month:BM, status:"Due"}));
+  if (!rows.length) return toast("No customers yet");
+  await run(db.from("invoices").upsert(rows, {onConflict:"customer_id,billing_month", ignoreDuplicates:true}), "Invoices generated for " + BM);
+}
+async function sendMsg(){
+  const r = recips();
+  if (!r.length || !M.txt.trim()) return toast("Choose a group and write a message first");
+  const label = AUD().find(o=>o[0]===M.aud)[1];
+  await run(db.from("messages").insert({channel:M.ch, audience:label, recipient_count:r.length, body:M.txt}), "Logged " + r.length + " " + M.ch + " messages");
+}
+
+async function loadSample(){
+  if (S.cust.length) return toast("Data already exists");
+  const cust = [
+    {name:"Baraka Cafe",package:"Gold",stage:"Onboarding",phone:"0700 000 101",service:"PPPoE"},
+    {name:"James Otieno",package:"Silver",stage:"Active",phone:"0700 000 102",service:"PPPoE"},
+    {name:"Nyeri Clinic",package:"Premium",stage:"Active",phone:"0700 000 103",service:"PPPoE"},
+    {name:"Lucy Wambui",package:"Silver",stage:"Upsell",phone:"0700 000 104",service:"Hotspot"},
+    {name:"Kiambu Traders",package:"Gold",stage:"At risk",phone:"0700 000 105",service:"PPPoE"},
+    {name:"Daniel Mutua",package:"Gold",stage:"Active",phone:"0700 000 106",service:"PPPoE"}
+  ].map(c => ({...c, last_contact:today(), ...genLogin()}));
+  const {data:cs, error} = await db.from("customers").insert(cust).select();
+  if (error) return toast(error.message);
+  await db.from("leads").insert([
+    {name:"Mwangi Hardware",source:"Referral",package:"Silver",stage:0},
+    {name:"Grace Wanjiru",source:"Social media",package:"Bronze",stage:1},
+    {name:"Hillview Lodge",source:"Door-to-door",package:"Premium",stage:2}
+  ]);
+  await db.from("goals").insert([
+    {title:"Reach 4,000 subscribers",current_value:3120,target_value:4000,unit:""},
+    {title:"Monthly recurring revenue",current_value:9400000,target_value:12000000,unit:"KSh"},
+    {title:"Cut monthly churn to 1.5% (lower is better)",current_value:1.8,target_value:1.5,unit:"%",lower_is_better:true},
+    {title:"Network uptime",current_value:99.97,target_value:99.99,unit:"%",minimum_value:99},
+    {title:"New customers this quarter",current_value:96,target_value:150,unit:""}
+  ]);
+  await db.from("marketing_channels").insert([
+    {name:"Referral program",description:"Existing customers get one free month for each referral.",spend:150000,leads:64,customers:41},
+    {name:"Door-to-door visits",description:"Sales team visits streets where fiber has just been laid.",spend:320000,leads:58,customers:22},
+    {name:"Social media",description:"Short videos and local community groups on Facebook and WhatsApp.",spend:230000,leads:92,customers:18},
+    {name:"Radio and posters",description:"Local FM spots and posters at shopping centers.",spend:280000,leads:40,customers:9},
+    {name:"Google ads",description:"Search ads for fiber internet near me.",spend:190000,leads:36,customers:11},
+    {name:"Business partnerships",description:"Schools, clinics and landlords who bundle our service.",spend:110000,leads:18,customers:10}
+  ]);
+  toast("Sample data loaded (" + cs.length + " customers)");
+  await load(); render();
+}
+
+async function signIn(e){
+  e.preventDefault();
+  $("#lg-err").textContent = ""; $("#lg-btn").disabled = true;
+  const {error} = await db.auth.signInWithPassword({email:$("#lg-email").value.trim(), password:$("#lg-pass").value});
+  $("#lg-btn").disabled = false;
+  if (error) $("#lg-err").textContent = error.message;
+}
+async function signOut(){ await db.auth.signOut(); }
+
+function showApp(session){
+  $("#login").hidden = !!session;
+  $("#app").hidden = !session;
+  if (session){
+    $("#who").textContent = session.user.email;
+    load().then(render).catch(err => toast(err.message));
+  }
+}
+db.auth.onAuthStateChange((_event, session) => showApp(session));
 </script>
 </body>
 </html>
