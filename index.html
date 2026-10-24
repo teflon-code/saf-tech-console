@@ -4,136 +4,129 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SAF-TECH Operations Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-  tailwind.config = {
-    theme: { extend: {
-      fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
-      colors: {
-        ink: 'var(--ink)', muted: 'var(--muted)', panel: 'var(--panel)', page: 'var(--page)',
-        line: 'var(--line)', accent: 'var(--accent)', accentink: 'var(--accent-ink)', soft: 'var(--soft)'
-      },
-      boxShadow: { card: '0 1px 2px rgba(16,24,40,.04)', pop: '0 24px 60px rgba(16,24,40,.22)' }
-    } }
-  };
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
+    colors: { brand: { DEFAULT:'#2563eb', 600:'#1d4ed8', 50:'#eff6ff' }, ink: '#0f172a', muted: '#64748b', line: '#e2e8f0', page: '#f1f5f9' },
+    boxShadow: { card: '0 1px 2px rgba(15,23,42,.05), 0 1px 1px rgba(15,23,42,.03)', pop: '0 24px 60px rgba(15,23,42,.25)' }
+  } } };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-/* Two themes. Switch with the theme button in the header. */
-:root, [data-theme="bank"]{
-  --page:#f5f6fa; --panel:#ffffff; --soft:#f4f6fb; --ink:#2d3a5a; --muted:#8a94ab; --line:#e8ebf3;
-  --accent:#1a0dfa; --accent-ink:#ffffff; --accent-soft:#eceeff; --chart-a:#1a0dfa; --chart-b:#18d4c9;
-  --grad:linear-gradient(135deg,#1a0dfa 0%,#4b43ff 100%);
-  --focus:#1a0dfa;
-}
-[data-theme="stack"]{
-  --page:#f5f6fa; --panel:#ffffff; --soft:#f4f6fb; --ink:#1f2937; --muted:#7b8497; --line:#e5e7eb;
-  --accent:#4880ff; --accent-ink:#ffffff; --accent-soft:#e8efff; --chart-a:#4880ff; --chart-b:#f87171;
-  --grad:linear-gradient(135deg,#4880ff,#6b9bff);
-  --focus:#4880ff;
-}
-html,body{height:100%}
-body{background:var(--page);color:var(--ink);-webkit-font-smoothing:antialiased}
-:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:8px}
+[hidden]{display:none!important}
+body{-webkit-font-smoothing:antialiased}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px;border-radius:8px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.nav-btn[aria-current="page"]{color:var(--accent);font-weight:600}
-[data-theme="bank"] .nav-btn[aria-current="page"]{background:transparent}
-[data-theme="stack"] .nav-btn[aria-current="page"]{background:var(--accent);color:#fff;border-radius:12px}
-[data-theme="bank"] .nav-btn[aria-current="page"] .navbar{display:block}
-.navbar{display:none;position:absolute;left:-16px;top:0;bottom:0;width:4px;border-radius:0 4px 4px 0;background:var(--accent)}
-[data-theme="stack"] .navbar{display:none!important}
-.card-bank-a{background:var(--grad);color:#fff}
-.card-bank-b{background:#fff;color:var(--ink);border:1px solid var(--line)}
-.bar-track{height:8px;border-radius:999px;background:#eef1f7;overflow:hidden}
-.bar-fill{height:100%;border-radius:999px;background:var(--accent)}
-.table-head th{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:600;white-space:nowrap}
-.pill-ok{background:#dcfce7;color:#15803d}.pill-warn{background:#fef3c7;color:#b45309}.pill-bad{background:#fee2e2;color:#b91c1c}.pill-info{background:var(--accent-soft);color:var(--accent)}.pill-neutral{background:#eef1f7;color:var(--muted)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:12px;font-weight:600;font-size:.9rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;transition:background .15s}
-.btn:hover{background:var(--soft)}
-.btn-accent{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn-accent:hover{filter:brightness(1.08);background:var(--accent)}
-.btn-danger{color:#b91c1c}
+.nav-link{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border-radius:12px;color:#64748b;font-weight:500;font-size:.9rem;transition:background .15s,color .15s}
+.nav-link:hover{background:#f1f5f9;color:#0f172a}
+.nav-link[aria-current="page"]{background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.28)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:12px;font-weight:600;font-size:.9rem;border:1px solid #e2e8f0;background:#fff;color:#0f172a;cursor:pointer;transition:background .15s,transform .05s}
+.btn:hover{background:#f8fafc}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:#2563eb;border-color:#2563eb;color:#fff}
+.btn-primary:hover{background:#1d4ed8}
+.btn-danger{color:#be123c}
+.btn-sm{min-height:34px;padding:0 12px;font-size:.82rem;border-radius:10px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.field{display:flex;flex-direction:column;gap:6px;min-width:0}
-.field label{font-size:.8rem;color:var(--muted);font-weight:500}
-.input{width:100%;min-height:40px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--panel);color:var(--ink);font:inherit;font-size:.9rem}
-textarea.input{min-height:90px;resize:vertical}
-.input:focus{outline:2px solid var(--focus);outline-offset:0}
-.avatar{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;font-weight:600;font-size:.8rem;background:var(--accent-soft);color:var(--accent);flex:none}
+.input{width:100%;min-height:42px;border:1px solid #e2e8f0;border-radius:12px;padding:9px 12px;background:#fff;color:#0f172a;font:inherit;font-size:.9rem}
+.input:focus{outline:2px solid #2563eb;outline-offset:0;border-color:#2563eb}
+textarea.input{min-height:96px;resize:vertical}
+.label{font-size:.8rem;font-weight:500;color:#64748b}
+.card{background:#fff;border:1px solid #eef2f7;border-radius:18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.card-title{font-weight:600;font-size:1rem;color:#0f172a}
+.th{font-size:.72rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;text-align:left;background:#f8fafc}
+.td{padding:14px 16px;border-top:1px solid #f1f5f9;font-size:.9rem;vertical-align:middle}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill-ok{background:#dcfce7;color:#15803d}.pill-warn{background:#fef3c7;color:#b45309}.pill-bad{background:#ffe4e6;color:#be123c}.pill-info{background:#dbeafe;color:#1d4ed8}.pill-neutral{background:#f1f5f9;color:#64748b}
+.avatar{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;font-weight:700;font-size:.8rem;background:#dbeafe;color:#1d4ed8;flex:none}
+.bar-track{height:8px;border-radius:999px;background:#eef2f7;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:#2563eb}
+.hero{background:linear-gradient(135deg,#1d4ed8 0%,#4f46e5 60%,#6366f1 100%);color:#fff}
 .toast{transition:opacity .2s ease}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body class="font-sans">
+<body class="font-sans bg-page text-ink antialiased">
 
-<section id="login" class="min-h-screen grid place-items-center p-6" hidden>
-  <div class="w-full max-w-sm rounded-2xl bg-panel p-8 shadow-pop">
-    <div class="flex items-center gap-2 text-lg font-bold"><span class="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accentink">S</span>SAF-TECH.</div>
-    <h1 class="mt-6 text-xl font-semibold">Sign in</h1>
-    <p class="mt-1 text-sm text-muted">Owner account only.</p>
-    <form class="mt-6 grid gap-4" onsubmit="signIn(event)">
-      <div class="field"><label for="lg-email">Email</label><input class="input" id="lg-email" type="email" required autocomplete="username"></div>
-      <div class="field"><label for="lg-pass">Password</label><input class="input" id="lg-pass" type="password" required autocomplete="current-password"></div>
-      <button class="btn btn-accent" id="lg-btn" type="submit">Sign in</button>
-    </form>
-    <p id="lg-err" class="mt-4 text-sm text-red-600" role="alert"></p>
+<!-- LOGIN PAGE: shown alone until the owner signs in. No dashboard content is rendered here. -->
+<section id="login-page" class="min-h-screen grid lg:grid-cols-2" hidden>
+  <div class="hero hidden lg:flex flex-col justify-between p-12">
+    <div class="flex items-center gap-3 text-xl font-bold"><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/20">S</span>SAF-TECH</div>
+    <div>
+      <h1 class="text-4xl font-bold leading-tight">Operations, billing and customers in one place.</h1>
+      <p class="mt-4 max-w-md text-indigo-100">Track payments, manage subscriptions, respond to complaints and ask the AI assistant for summaries and analytics.</p>
+    </div>
+    <p class="text-sm text-indigo-200">Owner access only.</p>
+  </div>
+  <div class="flex items-center justify-center p-6">
+    <div class="w-full max-w-sm">
+      <div class="mb-8 flex items-center gap-3 lg:hidden"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand text-white font-bold">S</span><span class="text-xl font-bold">SAF-TECH</span></div>
+      <h2 class="text-2xl font-bold">Sign in</h2>
+      <p class="mt-1 text-sm text-muted">Use your owner account to continue.</p>
+      <form class="mt-8 grid gap-4" onsubmit="signIn(event)">
+        <div class="grid gap-1.5"><label class="label" for="lg-email">Email</label><input class="input" id="lg-email" type="email" required autocomplete="username"></div>
+        <div class="grid gap-1.5"><label class="label" for="lg-pass">Password</label><input class="input" id="lg-pass" type="password" required autocomplete="current-password"></div>
+        <button id="lg-btn" class="btn btn-primary mt-2 w-full" type="submit">Sign in</button>
+        <p id="lg-err" class="min-h-5 text-sm text-rose-600" role="alert"></p>
+      </form>
+    </div>
   </div>
 </section>
 
-<div id="app" class="flex min-h-screen" hidden>
-  <!-- Sidebar -->
-  <aside id="side" class="fixed inset-y-0 left-0 z-40 flex w-60 -translate-x-full flex-col gap-6 overflow-y-auto border-r border-line bg-panel p-5 transition-transform lg:static lg:translate-x-0" aria-label="Main navigation">
-    <div class="flex items-center gap-2 px-2 text-lg font-bold" id="brand"><span class="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accentink">S</span><span>SAF-TECH.</span></div>
+<!-- DASHBOARD: shown only after a verified owner session -->
+<div id="app-shell" class="min-h-screen lg:flex" hidden>
+  <aside id="side" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col gap-6 overflow-y-auto border-r border-line bg-white p-5 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0" aria-label="Main navigation">
+    <div class="flex items-center gap-3 px-2"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand text-white font-bold">S</span><span class="text-lg font-bold">SAF-TECH</span></div>
     <nav id="nav" class="flex flex-col gap-1" aria-label="Sections"></nav>
-    <div class="mt-auto rounded-2xl bg-soft p-4 text-sm" id="who"></div>
+    <div class="mt-auto rounded-2xl bg-page p-4 text-sm" id="owner-box"></div>
   </aside>
-  <div id="scrim" class="fixed inset-0 z-30 hidden bg-black/30 lg:hidden" onclick="toggleMenu(false)"></div>
+  <div id="scrim" class="fixed inset-0 z-30 hidden bg-slate-900/40 lg:hidden" onclick="toggleMenu(false)"></div>
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <!-- Header -->
-    <header class="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-line bg-panel px-4 py-3 md:px-8">
-      <button class="grid h-10 w-10 place-items-center rounded-xl border border-line lg:hidden" aria-label="Open menu" aria-controls="side" aria-expanded="false" id="menu-btn" onclick="toggleMenu(true)">
+    <header class="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-line bg-white/90 px-4 py-3 backdrop-blur md:px-8">
+      <button id="menu-btn" class="grid h-10 w-10 place-items-center rounded-xl border border-line lg:hidden" aria-label="Open menu" aria-controls="side" aria-expanded="false" onclick="toggleMenu(true)">
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
-      <h2 id="title" class="text-xl font-bold md:text-2xl">Overview</h2>
-      <div class="ml-auto flex w-full items-center gap-2 md:w-auto">
-        <label class="relative flex min-w-0 flex-1 md:w-72 md:flex-none">
+      <h1 id="title" class="text-xl font-bold md:text-2xl">Overview</h1>
+      <div class="ml-auto flex w-full items-center gap-2 sm:w-auto">
+        <label class="relative flex min-w-0 flex-1 sm:w-72 sm:flex-none">
           <span class="sr-only">Search customers</span>
           <svg viewBox="0 0 24 24" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
           <input id="q" class="input pl-9" placeholder="Search customers" oninput="searchCustomers(this.value)">
         </label>
-        <button class="btn px-3" id="theme-btn" onclick="toggleTheme()" aria-label="Switch theme"><span id="theme-label">DashStack</span></button>
-        <button class="btn px-3" onclick="signOut()" aria-label="Sign out">Sign out</button>
+        <button class="btn" onclick="signOut()">Sign out</button>
       </div>
     </header>
-
-    <main id="view" class="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-8" tabindex="-1"></main>
+    <main id="view" class="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-8" tabindex="-1"></main>
   </div>
 </div>
 
-<!-- AI assistant pop-up, available on every section -->
-<button id="ai-fab" class="fixed bottom-6 right-6 z-50 hidden h-14 items-center gap-2 rounded-full bg-accent px-5 font-semibold text-accentink shadow-pop" aria-expanded="false" aria-controls="ai-panel" onclick="toggleAI()">
+<!-- AI assistant pop-up, available on every section after sign-in -->
+<button id="ai-fab" class="btn btn-primary fixed bottom-5 right-5 z-50 h-14 rounded-full px-5 shadow-pop" aria-expanded="false" aria-controls="ai-panel" onclick="toggleAI()" hidden>
   <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
   <span id="ai-fab-label">Ask the assistant</span>
 </button>
-<section id="ai-panel" class="fixed bottom-24 right-4 z-50 hidden h-[min(640px,calc(100vh-130px))] w-[min(420px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-pop" role="dialog" aria-labelledby="ai-title">
+<section id="ai-panel" class="fixed bottom-24 right-4 z-50 flex h-[min(620px,calc(100vh-130px))] w-[min(420px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-pop" role="dialog" aria-labelledby="ai-title" hidden>
   <div class="flex items-center justify-between border-b border-line p-4">
     <div><h2 id="ai-title" class="font-semibold">AI assistant</h2><p class="text-xs text-muted">Reads your data. Changes wait for your approval.</p></div>
     <button class="grid h-9 w-9 place-items-center rounded-lg border border-line" aria-label="Close assistant" onclick="toggleAI(false)">
       <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
-  <div id="ai-body" class="flex flex-1 flex-col gap-2 overflow-y-auto bg-soft p-3" role="log" aria-live="polite"></div>
+  <div id="ai-body" class="flex flex-1 flex-col gap-2 overflow-y-auto bg-page p-3" role="log" aria-live="polite"></div>
   <form class="flex items-end gap-2 border-t border-line p-3" onsubmit="sendChat(event)">
     <label class="sr-only" for="chatin">Message to the assistant</label>
     <textarea id="chatin" class="input max-h-32 flex-1" rows="1" placeholder="Ask about payments, customers or complaints" required></textarea>
-    <button class="btn btn-accent" id="ai-send">Send</button>
+    <button class="btn btn-primary" id="ai-send">Send</button>
   </form>
 </section>
 
-<div id="toast" class="toast pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-white opacity-0" role="status" aria-live="polite"></div>
+<div id="toast" class="toast pointer-events-none fixed bottom-24 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white opacity-0" role="status" aria-live="polite"></div>
 
 <script>
 const SB_URL = "https://rjzeqptfwxzhuofsbamc.supabase.co";
@@ -153,7 +146,7 @@ const ICON = {
   messages:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'
 };
 const TABS = [
-  {id:"Overview", icon:"overview", group:"Dashboards"},
+  {id:"Overview", icon:"overview", group:"Dashboard"},
   {id:"Customers", icon:"customers", group:"Customers"},
   {id:"Login details", icon:"login", group:"Customers"},
   {id:"Tertiary info", icon:"details", group:"Customers"},
@@ -174,6 +167,15 @@ const TPL = {
   "Welcome":"Welcome to SAF-TECH, {name}! Your {package} package is being set up and our technician will contact you shortly."
 };
 const TF = [["Location","location","text","Area or street"],["ID number","national_id","text","National ID"],["Alternate contact","alternate_contact","text","Name and phone"],["Installed on","installed_on","date",""],["Equipment serial","equipment_serial","text","Router or ONT serial"],["Notes","notes","text","Anything else"]];
+
+// Sample series used by the trend charts (labelled "Sample data" on screen).
+const SAMPLE = {
+  weekday: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+  deposits: [420, 360, 280, 510, 330, 470, 390],
+  withdrawals: [240, 150, 190, 260, 340, 210, 300],
+  balance: {labels:["Jul","Aug","Sep","Oct","Nov","Dec","Jan"], values:[420,560,460,780,600,640,590]},
+  traffic: [{label:"Mobile money",value:44},{label:"Bank transfer",value:26},{label:"Cash",value:18},{label:"Card",value:12}]
+};
 
 let S = {pk:{},cust:[],leads:[],inv:[],pays:[],msgs:[],goals:[],mk:[],actions:[],chat:[]};
 let tab = "Overview", BM = "Oct 2026", SH = false, dc = 0, QUERY = "", busy = false, charts = [];
@@ -234,27 +236,19 @@ async function load(){
 
 function go(t){ tab = t; toggleMenu(false); render(); $("#view").focus({preventScroll:true}); }
 function toggleMenu(open){
-  const s=$("#side");
-  s.classList.toggle("-translate-x-full", !open);
+  $("#side").classList.toggle("-translate-x-full", !open);
   $("#scrim").classList.toggle("hidden", !open);
   $("#menu-btn").setAttribute("aria-expanded", String(!!open));
-}
-function toggleTheme(){
-  const next = document.documentElement.getAttribute("data-theme") === "bank" ? "stack" : "bank";
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("saf_theme", next);
-  $("#theme-label").textContent = next === "bank" ? "DashStack" : "BankDash";
-  render();
 }
 function searchCustomers(v){ QUERY = v.trim().toLowerCase(); if (tab !== "Customers") go("Customers"); else render(); }
 
 function render(){
   let group = "";
   $("#nav").innerHTML = TABS.map(t => {
-    const head = t.group !== group ? (group = t.group, `<div class="mt-4 px-3 text-xs font-medium text-muted first:mt-0">${t.group}</div>`) : "";
-    return `${head}<button type="button" class="nav-btn relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm text-muted hover:text-ink" ${t.id===tab?'aria-current="page"':""} onclick="go('${t.id}')"><span class="navbar"></span>${ic(t.icon)}<span>${t.id}</span></button>`;
+    const head = t.group !== group ? (group = t.group, `<div class="mt-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 first:mt-0">${t.group}</div>`) : "";
+    return `${head}<button type="button" class="nav-link" ${t.id===tab?'aria-current="page"':""} onclick="go('${t.id}')">${ic(t.icon)}<span>${t.id}</span></button>`;
   }).join("");
-  $("#title").textContent = tab === "Overview" ? "Overview" : tab;
+  $("#title").textContent = tab;
   destroyCharts();
   $("#view").innerHTML = V[tab]();
   initCharts();
@@ -262,41 +256,52 @@ function render(){
   if (tab === "Messages") preview();
 }
 
-const CA = () => getComputedStyle(document.documentElement).getPropertyValue("--chart-a").trim();
-const CB = () => getComputedStyle(document.documentElement).getPropertyValue("--chart-b").trim();
 function destroyCharts(){ charts.forEach(c => c.destroy()); charts = []; }
-function chartOpts(extra={}){
-  return Object.assign({responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false},ticks:{color:"#8a94ab"}}, y:{grid:{color:"#eef1f7"},ticks:{color:"#8a94ab"}}}}, extra);
-}
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const gridOpts = { grid:{color:"#eef2f7", drawBorder:false}, ticks:{color:"#94a3b8", font:{size:11}} };
+const baseOpts = (extra={}) => Object.assign({responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{color:"#94a3b8",font:{size:11}}}, y:Object.assign({beginAtZero:true}, gridOpts)}}, extra);
+
 function initCharts(){
   if (tab !== "Overview") return;
+  const pick = id => document.getElementById(id);
+
+  // Weekly activity (sample): deposits vs withdrawals, rounded bars
+  if (pick("chart-weekly")) charts.push(new Chart(pick("chart-weekly"), {type:"bar", data:{labels:SAMPLE.weekday, datasets:[
+    {label:"Deposit", data:SAMPLE.deposits, backgroundColor:"#2563eb", borderRadius:8, barThickness:12},
+    {label:"Withdraw", data:SAMPLE.withdrawals, backgroundColor:"#22d3ee", borderRadius:8, barThickness:12}
+  ]}, options: baseOpts({plugins:{legend:{display:true, position:"top", align:"end", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}})}));
+
+  // Balance history (sample): smooth area line
+  if (pick("chart-balance")) charts.push(new Chart(pick("chart-balance"), {type:"line", data:{labels:SAMPLE.balance.labels, datasets:[{data:SAMPLE.balance.values, borderColor:"#2563eb", borderWidth:3, backgroundColor:(ctx)=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,220); g.addColorStop(0,"rgba(37,99,235,.28)"); g.addColorStop(1,"rgba(37,99,235,0)"); return g;}, fill:true, tension:.42, pointRadius:0, pointHoverRadius:5}]}, options: baseOpts()}));
+
+  // Collections (real): billed vs collected by month
   const months = MO.slice(0,6);
   const billed = months.map(m => S.inv.filter(i=>i.billing_month===m).reduce((a,i)=>a+invPrice(i),0));
   const collected = months.map(m => S.inv.filter(i=>i.billing_month===m).reduce((a,i)=>a+Math.min(invPrice(i),paid(i)),0));
-  const c1 = document.getElementById("chart-billing");
-  if (c1) charts.push(new Chart(c1, {type:"bar", data:{labels:months.map(m=>m.slice(0,3)), datasets:[
-    {label:"Billed", data:billed, backgroundColor:CA(), borderRadius:8, barThickness:14},
-    {label:"Collected", data:collected, backgroundColor:CB(), borderRadius:8, barThickness:14}
-  ]}, options: chartOpts({plugins:{legend:{display:true, position:"top", align:"end", labels:{usePointStyle:true, boxWidth:8, color:"#8a94ab"}}}})}));
+  if (pick("chart-billing")) charts.push(new Chart(pick("chart-billing"), {type:"bar", data:{labels:months.map(m=>m.slice(0,3)), datasets:[
+    {label:"Billed", data:billed, backgroundColor:"#dbeafe", borderRadius:8, barThickness:14},
+    {label:"Collected", data:collected, backgroundColor:"#2563eb", borderRadius:8, barThickness:14}
+  ]}, options: baseOpts({plugins:{legend:{display:true, position:"top", align:"end", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}})}));
 
+  // Expense statistics (sample): donut of payment methods
+  if (pick("chart-methods")) charts.push(new Chart(pick("chart-methods"), {type:"doughnut", data:{labels:SAMPLE.traffic.map(t=>t.label), datasets:[{data:SAMPLE.traffic.map(t=>t.value), backgroundColor:["#2563eb","#f59e0b","#10b981","#ec4899"], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:"68%", plugins:{legend:{position:"bottom", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}}}));
+
+  // Customers by stage (real)
   const stages = CS.map(s => S.cust.filter(c => c.stage===s && c.status!=="cancelled").length);
-  const c2 = document.getElementById("chart-stage");
-  if (c2) charts.push(new Chart(c2, {type:"doughnut", data:{labels:CS, datasets:[{data:stages, backgroundColor:["#1a0dfa","#18d4c9","#f472b6","#fbbf24"], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:"62%", plugins:{legend:{position:"bottom", labels:{usePointStyle:true, boxWidth:8, color:"#8a94ab"}}}}}));
+  if (pick("chart-stage")) charts.push(new Chart(pick("chart-stage"), {type:"doughnut", data:{labels:CS, datasets:[{data:stages, backgroundColor:["#94a3b8","#2563eb","#10b981","#f43f5e"], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:"68%", plugins:{legend:{position:"bottom", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}}}));
 
-  let running = 0; const cum = S.pays.slice().sort((a,b)=>a.paid_on.localeCompare(b.paid_on)).map(p => (running += p.amount));
-  const c3 = document.getElementById("chart-history");
-  if (c3) charts.push(new Chart(c3, {type:"line", data:{labels: cum.length ? S.pays.slice().sort((a,b)=>a.paid_on.localeCompare(b.paid_on)).map(p=>p.paid_on.slice(5)) : ["-"], datasets:[{label:"Cumulative collected", data: cum.length ? cum : [0], borderColor:CA(), backgroundColor:"rgba(26,13,250,.08)", fill:true, tension:.35, pointRadius:0, borderWidth:2.5}]}, options: chartOpts()}));
-
+  // Customers by package (real)
   const pk = Object.keys(S.pk).map(p => S.cust.filter(c=>c.status!=="cancelled" && c.package===p).length);
-  const c4 = document.getElementById("chart-package");
-  if (c4) charts.push(new Chart(c4, {type:"bar", data:{labels:Object.keys(S.pk), datasets:[{data:pk, backgroundColor:CA(), borderRadius:8, barThickness:26}]}, options: chartOpts()}));
+  if (pick("chart-package")) charts.push(new Chart(pick("chart-package"), {type:"bar", data:{labels:Object.keys(S.pk), datasets:[{data:pk, backgroundColor:"#2563eb", borderRadius:8, barThickness:26}]}, options: baseOpts()}));
 }
 
 const V = {};
 
-function kpi(label, value, sub, tone){
-  const tones = {bank:"card-bank-a", light:"bg-panel border border-line"};
-  return `<div class="flex flex-col gap-2 rounded-2xl p-5 shadow-card ${tone==="a"?"card-bank-a":"bg-panel border border-line"}"><span class="text-sm ${tone==="a"?"opacity-80":"text-muted"}">${label}</span><span class="text-2xl font-bold tabular-nums">${value}</span><span class="text-xs ${tone==="a"?"opacity-80":"text-muted"}">${sub}</span></div>`;
+function statCard(label, value, note, tone){
+  const tones = {
+    blue:"bg-blue-50 text-blue-700", green:"bg-emerald-50 text-emerald-700", amber:"bg-amber-50 text-amber-700", rose:"bg-rose-50 text-rose-700"
+  };
+  return `<div class="card flex flex-col gap-3 p-5"><div class="flex items-center justify-between"><span class="text-sm text-muted">${label}</span><span class="grid h-9 w-9 place-items-center rounded-xl ${tones[tone]}"><span class="h-2.5 w-2.5 rounded-full bg-current"></span></span></div><div class="text-2xl font-bold tabular-nums">${value}</div><div class="text-xs text-muted">${note}</div></div>`;
 }
 
 V["Overview"] = () => {
@@ -305,94 +310,106 @@ V["Overview"] = () => {
   const outstanding = S.inv.reduce((a,i) => a + Math.max(0, invPrice(i) - paid(i)), 0);
   const collected = S.pays.reduce((a,p) => a + p.amount, 0);
   const cancelled = S.cust.length - active.length;
-  const seed = S.cust.length === 0 ? `<div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-panel p-5 shadow-card"><div><h3 class="font-semibold">No customer data yet</h3><p class="text-sm text-muted">Load sample customers to try the console.</p></div><button class="btn btn-accent" onclick="loadSample()">Load sample data</button></div>` : "";
-  const recent = S.pays.slice().reverse().slice(0,4).map(p => { const inv=S.inv.find(i=>i.id===p.invoice_id); return `<div class="flex items-center gap-3 py-3"><span class="avatar">${initials(inv?cust(inv.customer_id).name:"?")}</span><div class="min-w-0 flex-1"><div class="truncate font-semibold">${inv?esc(cust(inv.customer_id).name):"Payment"}</div><div class="text-xs text-muted">${fdate(p.paid_on)} · ${esc(p.method)}</div></div><div class="font-semibold tabular-nums text-emerald-600">+${money(p.amount)}</div></div>`}).join("") || `<p class="py-4 text-sm text-muted">No payments yet.</p>`;
-  const outstandingList = S.inv.filter(i => status(i) !== "Paid").slice(0,5).map(i => { const c=cust(i.customer_id), bal=Math.max(0,invPrice(i)-paid(i)); const pct = invPrice(i) ? Math.round(paid(i)/invPrice(i)*100) : 0; return `<div class="py-3"><div class="flex items-center justify-between text-sm"><span class="font-medium">${esc(c.name)} <span class="text-muted">${esc(c.account_no||"")}</span></span><span class="tabular-nums">${money(bal)}</span></div><div class="bar-track mt-2"><div class="bar-fill" style="width:${pct}%"></div></div></div>` }).join("") || `<p class="py-4 text-sm text-muted">Nothing outstanding.</p>`;
+  const seed = S.cust.length === 0 ? `<div class="card flex flex-wrap items-center justify-between gap-4 p-5"><div><div class="card-title">No customer data yet</div><p class="text-sm text-muted">Load sample customers to fill the tables.</p></div><button class="btn btn-primary" onclick="loadSample()">Load sample data</button></div>` : "";
+  const recent = S.pays.slice().reverse().slice(0,5).map(p => { const inv=S.inv.find(i=>i.id===p.invoice_id); const name = inv ? cust(inv.customer_id).name : "Payment"; return `<div class="flex items-center gap-3 py-3"><span class="avatar">${initials(name)}</span><div class="min-w-0 flex-1"><div class="truncate text-sm font-semibold">${esc(name)}</div><div class="text-xs text-muted">${fdate(p.paid_on)} · ${esc(p.method)}</div></div><div class="text-sm font-semibold tabular-nums text-emerald-600">+${money(p.amount)}</div></div>`}).join("") || `<p class="py-6 text-sm text-muted">No payments yet.</p>`;
+  const open = S.inv.filter(i => status(i) !== "Paid").slice(0,5).map(i => { const c=cust(i.customer_id), bal=Math.max(0,invPrice(i)-paid(i)); const pct = invPrice(i) ? Math.round(paid(i)/invPrice(i)*100) : 0; return `<div class="py-3"><div class="flex items-center justify-between text-sm"><span class="font-medium">${esc(c.name)} <span class="text-muted">${esc(c.account_no||"")}</span></span><span class="tabular-nums">${money(bal)}</span></div><div class="bar-track mt-2"><div class="bar-fill" style="width:${pct}%"></div></div></div>` }).join("") || `<p class="py-6 text-sm text-muted">Nothing outstanding.</p>`;
   return `
   ${seed}
-  <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-    ${kpi("Active customers", active.length, cancelled+" cancelled", "a")}
-    ${kpi("Monthly recurring revenue", money(mrr), Object.keys(S.pk).length+" plans", "b")}
-    ${kpi("Collected to date", money(collected), S.pays.length+" payments", "b")}
-    ${kpi("Outstanding", money(outstanding), S.inv.filter(i=>status(i)!=="Paid").length+" open invoices", "b")}
-  </section>
-  <section class="grid gap-5 xl:grid-cols-3">
-    <div class="rounded-2xl bg-panel p-5 shadow-card xl:col-span-2">
-      <div class="mb-4 flex items-center justify-between"><h3 class="font-semibold">Billed and collected</h3><span class="text-sm text-muted">Last 6 months</span></div>
-      <div class="h-64"><canvas id="chart-billing" aria-label="Billed and collected by month"></canvas></div>
-    </div>
-    <div class="rounded-2xl bg-panel p-5 shadow-card">
-      <div class="mb-4 flex items-center justify-between"><h3 class="font-semibold">Recent transactions</h3></div>
-      <div class="divide-y divide-line">${recent}</div>
+  <section class="hero relative overflow-hidden rounded-3xl p-6 md:p-8">
+    <div class="flex flex-wrap items-start justify-between gap-6">
+      <div><p class="text-sm text-indigo-100">Total monthly recurring revenue</p><p class="mt-2 text-4xl font-bold tabular-nums">${money(mrr)}</p><p class="mt-2 text-sm text-indigo-100">${active.length} active customers · ${cancelled} cancelled</p></div>
+      <div class="grid grid-cols-2 gap-6 text-sm">
+        <div><p class="text-indigo-100">Collected</p><p class="mt-1 text-xl font-semibold tabular-nums">${money(collected)}</p></div>
+        <div><p class="text-indigo-100">Outstanding</p><p class="mt-1 text-xl font-semibold tabular-nums">${money(outstanding)}</p></div>
+      </div>
     </div>
   </section>
-  <section class="grid gap-5 xl:grid-cols-3">
-    <div class="rounded-2xl bg-panel p-5 shadow-card">
-      <h3 class="mb-4 font-semibold">Customers by stage</h3>
-      <div class="h-64"><canvas id="chart-stage" aria-label="Customers by stage"></canvas></div>
+  <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    ${statCard("Active customers", active.length, cancelled+" cancelled", "blue")}
+    ${statCard("Payments recorded", S.pays.length, "Across "+S.inv.length+" invoices", "green")}
+    ${statCard("Open invoices", S.inv.filter(i=>status(i)!=="Paid").length, "Waiting for payment", "amber")}
+    ${statCard("Open complaints", S.msgs.length ? "1" : "0", "Answer from the assistant", "rose")}
+  </section>
+  <section class="grid gap-6 xl:grid-cols-3">
+    <div class="card p-6 xl:col-span-2">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><div class="card-title">Weekly activity</div><div class="text-xs text-muted">Sample data</div></div></div>
+      <div class="h-72"><canvas id="chart-weekly" aria-label="Weekly deposits and withdrawals, sample data"></canvas></div>
     </div>
-    <div class="rounded-2xl bg-panel p-5 shadow-card">
-      <h3 class="mb-4 font-semibold">Collections over time</h3>
-      <div class="h-64"><canvas id="chart-history" aria-label="Cumulative collections"></canvas></div>
-    </div>
-    <div class="rounded-2xl bg-panel p-5 shadow-card">
-      <h3 class="mb-2 font-semibold">Open balances</h3>
-      <div class="divide-y divide-line">${outstandingList}</div>
+    <div class="card p-6">
+      <div class="card-title mb-1">Payment methods</div><div class="mb-4 text-xs text-muted">Sample data</div>
+      <div class="h-72"><canvas id="chart-methods" aria-label="Payment methods, sample data"></canvas></div>
     </div>
   </section>
-  <section class="rounded-2xl bg-panel p-5 shadow-card">
-    <h3 class="mb-4 font-semibold">Customers by package</h3>
-    <div class="h-56"><canvas id="chart-package" aria-label="Customers by package"></canvas></div>
+  <section class="grid gap-6 xl:grid-cols-3">
+    <div class="card p-6 xl:col-span-2">
+      <div class="mb-4 flex items-center justify-between"><div><div class="card-title">Balance history</div><div class="text-xs text-muted">Sample data</div></div></div>
+      <div class="h-72"><canvas id="chart-balance" aria-label="Balance history, sample data"></canvas></div>
+    </div>
+    <div class="card p-6">
+      <div class="card-title mb-4">Recent transactions</div>
+      <div class="divide-y divide-slate-100">${recent}</div>
+    </div>
+  </section>
+  <section class="grid gap-6 xl:grid-cols-3">
+    <div class="card p-6 xl:col-span-2">
+      <div class="mb-4 flex items-center justify-between"><div class="card-title">Billed and collected</div><div class="text-xs text-muted">From your data</div></div>
+      <div class="h-72"><canvas id="chart-billing" aria-label="Billed and collected by month"></canvas></div>
+    </div>
+    <div class="card p-6">
+      <div class="card-title mb-4">Open balances</div>
+      <div class="divide-y divide-slate-100">${open}</div>
+    </div>
+  </section>
+  <section class="grid gap-6 xl:grid-cols-2">
+    <div class="card p-6"><div class="card-title mb-4">Customers by stage</div><div class="h-64"><canvas id="chart-stage" aria-label="Customers by stage"></canvas></div></div>
+    <div class="card p-6"><div class="card-title mb-4">Customers by package</div><div class="h-64"><canvas id="chart-package" aria-label="Customers by package"></canvas></div></div>
   </section>`;
 };
 
 V["Leads"] = () => `
-<div class="flex flex-wrap items-end justify-between gap-3"><div><h1 class="text-2xl font-bold">Leads</h1><p class="text-sm text-muted">Move each lead along the pipeline. A lead marked Won becomes a customer.</p></div></div>
-<form class="grid gap-3 rounded-2xl bg-panel p-5 shadow-card md:grid-cols-[1fr_auto_auto_auto]" onsubmit="addLead(event)">
-  <div class="field"><label for="ln">Lead name</label><input class="input" id="ln" required></div>
-  <div class="field"><label for="ls">Source</label><select class="input" id="ls">${["Referral","Social media","Door-to-door","Radio","Google ads","Partnership"].map(o=>`<option>${o}</option>`).join("")}</select></div>
-  <div class="field"><label for="lp">Plan</label><select class="input" id="lp">${Object.keys(S.pk).map(o=>`<option>${o}</option>`).join("")}</select></div>
-  <div class="flex items-end"><button class="btn btn-accent w-full">Add lead</button></div>
+<section><p class="text-sm text-muted">Move each lead along the pipeline. A lead marked Won becomes a customer.</p></section>
+<form class="card grid gap-4 p-5 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end" onsubmit="addLead(event)">
+  <div class="grid gap-1.5"><label class="label" for="ln">Lead name</label><input class="input" id="ln" required></div>
+  <div class="grid gap-1.5"><label class="label" for="ls">Source</label><select class="input" id="ls">${["Referral","Social media","Door-to-door","Radio","Google ads","Partnership"].map(o=>`<option>${o}</option>`).join("")}</select></div>
+  <div class="grid gap-1.5"><label class="label" for="lp">Plan</label><select class="input" id="lp">${Object.keys(S.pk).map(o=>`<option>${o}</option>`).join("")}</select></div>
+  <button class="btn btn-primary">Add lead</button>
 </form>
-<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">${LS.map((st,i)=>{const L=S.leads.filter(l=>l.stage===i);return `<div class="rounded-2xl bg-soft p-3"><div class="mb-2 flex items-center justify-between px-1"><h3 class="font-semibold">${st}</h3><span class="text-sm text-muted">${L.length}</span></div>${L.map(l=>`<div class="mt-2 rounded-xl border border-line bg-panel p-3 shadow-card"><div class="font-semibold">${esc(l.name)}</div><div class="mb-2 text-xs text-muted">${esc(l.source)} · ${esc(l.package)}</div>${i<4?`<button class="btn w-full" onclick="moveLead(${l.id})">Move to ${LS[i+1]}</button>`:pill("Active")}</div>`).join("")}</div>`}).join("")}</div>`;
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">${LS.map((st,i)=>{const L=S.leads.filter(l=>l.stage===i);return `<div class="rounded-2xl bg-slate-100/70 p-3"><div class="mb-2 flex items-center justify-between px-1"><h2 class="text-sm font-semibold">${st}</h2><span class="text-xs text-muted">${L.length}</span></div>${L.map(l=>`<div class="card mt-2 p-3"><div class="font-semibold">${esc(l.name)}</div><div class="mb-3 text-xs text-muted">${esc(l.source)} · ${esc(l.package)}</div>${i<4?`<button class="btn btn-sm w-full" onclick="moveLead(${l.id})">Move to ${LS[i+1]}</button>`:pill("Active")}</div>`).join("")}</div>`}).join("")}</div>`;
 
 V["Customers"] = () => {
   const list = S.cust.filter(c => !QUERY || [c.name, c.account_no, c.phone, c.email].some(v => String(v||"").toLowerCase().includes(QUERY)));
-  const counts = CS.map(s => `<div class="rounded-2xl bg-panel p-5 shadow-card"><div class="text-sm text-muted">${s}</div><div class="mt-1 text-2xl font-bold tabular-nums">${S.cust.filter(c=>c.stage===s && c.status!=="cancelled").length}</div></div>`).join("");
+  const counts = CS.map((s,i) => `<div class="card p-5"><div class="text-sm text-muted">${s}</div><div class="mt-1 text-2xl font-bold tabular-nums">${S.cust.filter(c=>c.stage===s && c.status!=="cancelled").length}</div></div>`).join("");
   return `
-  <div><h1 class="text-2xl font-bold">Customers</h1><p class="text-sm text-muted">Track every customer from install to upgrade. Cancelled accounts stay listed for records.</p></div>
-  <section class="grid gap-4 md:grid-cols-4">${counts}</section>
-  <form class="grid gap-3 rounded-2xl bg-panel p-5 shadow-card md:grid-cols-3 xl:grid-cols-6" onsubmit="addCustomer(event)">
-    <div class="field md:col-span-2 xl:col-span-1"><label for="cn">Customer name</label><input class="input" id="cn" required></div>
-    <div class="field"><label for="cph">Phone</label><input class="input" id="cph" type="tel" placeholder="0712 345 678" required></div>
-    <div class="field"><label for="cem">Email (optional)</label><input class="input" id="cem" type="email"></div>
-    <div class="field"><label for="cp">Package</label><select class="input" id="cp">${Object.keys(S.pk).map(k=>`<option>${k}</option>`).join("")}</select></div>
-    <div class="field"><label for="cs">Service</label><select class="input" id="cs"><option>PPPoE</option><option>Hotspot</option></select></div>
-    <div class="flex items-end"><button class="btn btn-accent w-full">Add customer</button></div>
+  <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${counts}</section>
+  <form class="card grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-6 xl:items-end" onsubmit="addCustomer(event)">
+    <div class="grid gap-1.5 md:col-span-2 xl:col-span-2"><label class="label" for="cn">Customer name</label><input class="input" id="cn" required></div>
+    <div class="grid gap-1.5"><label class="label" for="cph">Phone</label><input class="input" id="cph" type="tel" placeholder="0712 345 678" required></div>
+    <div class="grid gap-1.5"><label class="label" for="cp">Package</label><select class="input" id="cp">${Object.keys(S.pk).map(k=>`<option>${k}</option>`).join("")}</select></div>
+    <div class="grid gap-1.5"><label class="label" for="cs">Service</label><select class="input" id="cs"><option>PPPoE</option><option>Hotspot</option></select></div>
+    <button class="btn btn-primary">Add customer</button>
   </form>
-  <div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><table class="w-full min-w-[860px] text-sm">
-    <thead class="table-head border-b border-line bg-soft text-left"><tr><th class="p-4">Account</th><th class="p-4">Customer</th><th class="p-4">Contact</th><th class="p-4">Package</th><th class="p-4">Service</th><th class="p-4">Stage</th><th class="p-4">Last contact</th><th class="p-4">Next step</th><th class="p-4"><span class="sr-only">Actions</span></th></tr></thead>
-    <tbody class="divide-y divide-line">${list.map(c=>{const x=c.status==="cancelled";return `<tr class="${x?"opacity-60":""}"><td class="p-4 font-semibold">${esc(c.account_no||"-")}</td><td class="p-4"><div class="flex items-center gap-3"><span class="avatar">${initials(c.name)}</span><div><div class="font-semibold">${esc(c.name)}</div>${x?pill("Cancelled"):""}</div></div></td><td class="p-4">${esc(c.phone||"-")}${c.email?`<div class="text-xs text-muted">${esc(c.email)}</div>`:""}</td><td class="p-4">${c.package}<div class="text-xs text-muted">${money(price(c))}</div></td><td class="p-4">${pill(c.service)}</td>
-    <td class="p-4"><label class="sr-only" for="st${c.id}">Stage for ${esc(c.name)}</label><select id="st${c.id}" class="input min-w-32" onchange="setField('customers',${c.id},'stage',this.value)" ${x?"disabled":""}>${CS.map(s=>`<option${s===c.stage?" selected":""}>${s}</option>`).join("")}</select></td>
-    <td class="p-4">${fdate(c.last_contact)}</td><td class="p-4 text-muted">${x?"-":NEXT[c.stage]}</td>
-    <td class="p-4">${x?"":`<div class="flex flex-wrap gap-2"><button class="btn" onclick="logContact(${c.id})">Log contact</button><button class="btn btn-danger" onclick="delCustomer(${c.id})">${dc===c.id?"Confirm delete":"Delete"}</button></div>`}</td></tr>`}).join("") || `<tr><td class="p-6 text-muted" colspan="9">No customers match.</td></tr>`}</tbody></table></div>`;
+  <div class="card overflow-x-auto"><table class="w-full min-w-[860px] text-sm">
+    <thead><tr><th class="th">Account</th><th class="th">Customer</th><th class="th">Contact</th><th class="th">Package</th><th class="th">Service</th><th class="th">Stage</th><th class="th">Last contact</th><th class="th">Next step</th><th class="th"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>${list.map(c=>{const x=c.status==="cancelled";return `<tr class="${x?"opacity-60":""}"><td class="td font-semibold">${esc(c.account_no||"-")}</td><td class="td"><div class="flex items-center gap-3"><span class="avatar">${initials(c.name)}</span><div><div class="font-semibold">${esc(c.name)}</div>${x?pill("Cancelled"):""}</div></div></td><td class="td">${esc(c.phone||"-")}${c.email?`<div class="text-xs text-muted">${esc(c.email)}</div>`:""}</td><td class="td">${c.package}<div class="text-xs text-muted">${money(price(c))}</div></td><td class="td">${pill(c.service)}</td>
+    <td class="td"><label class="sr-only" for="st${c.id}">Stage for ${esc(c.name)}</label><select id="st${c.id}" class="input min-w-32" onchange="setField('customers',${c.id},'stage',this.value)" ${x?"disabled":""}>${CS.map(s=>`<option${s===c.stage?" selected":""}>${s}</option>`).join("")}</select></td>
+    <td class="td">${fdate(c.last_contact)}</td><td class="td text-muted">${x?"-":NEXT[c.stage]}</td>
+    <td class="td">${x?"":`<div class="flex flex-wrap gap-2"><button class="btn btn-sm" onclick="logContact(${c.id})">Log contact</button><button class="btn btn-sm btn-danger" onclick="delCustomer(${c.id})">${dc===c.id?"Confirm delete":"Delete"}</button></div>`}</td></tr>`}).join("") || `<tr><td class="td text-muted" colspan="9">No customers match.</td></tr>`}</tbody></table></div>`;
 };
 
 V["Login details"] = () => `
-<div class="flex flex-wrap items-end justify-between gap-3"><div><h1 class="text-2xl font-bold">Login details</h1><p class="text-sm text-muted">PPPoE usernames and passwords, or hotspot voucher codes. Edits save automatically.</p></div>
-<button class="btn" onclick="SH=!SH;render()" aria-pressed="${SH}">${SH?"Hide":"Show"} passwords</button></div>
-<div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><table class="w-full min-w-[720px] text-sm">
-<thead class="table-head border-b border-line bg-soft text-left"><tr><th class="p-4">Account</th><th class="p-4">Customer</th><th class="p-4">Username</th><th class="p-4">Password</th><th class="p-4"><span class="sr-only">Actions</span></th></tr></thead>
-<tbody class="divide-y divide-line">${S.cust.map(c=>`<tr><td class="p-4">${esc(c.account_no||"-")}</td><td class="p-4 font-semibold">${esc(c.name)}</td>
-<td class="p-4"><label class="sr-only" for="u${c.id}">Username for ${esc(c.name)}</label><input id="u${c.id}" class="input" value="${esc(c.pppoe_username||"")}" onchange="setField('customers',${c.id},'pppoe_username',this.value)"></td>
-<td class="p-4"><label class="sr-only" for="p${c.id}">Password for ${esc(c.name)}</label><input id="p${c.id}" class="input" type="${SH?"text":"password"}" value="${esc(c.pppoe_password||"")}" onchange="setField('customers',${c.id},'pppoe_password',this.value)"></td>
-<td class="p-4"><button class="btn" onclick="newLogin(${c.id})">${c.pppoe_password?"New password":"Generate"}</button></td></tr>`).join("")}</tbody></table></div>`;
+<section class="flex flex-wrap items-center justify-between gap-3"><p class="text-sm text-muted">PPPoE usernames and passwords, or hotspot voucher codes. Edits save automatically.</p><button class="btn" onclick="SH=!SH;render()" aria-pressed="${SH}">${SH?"Hide":"Show"} passwords</button></section>
+<div class="card overflow-x-auto"><table class="w-full min-w-[720px] text-sm">
+<thead><tr><th class="th">Account</th><th class="th">Customer</th><th class="th">Username</th><th class="th">Password</th><th class="th"><span class="sr-only">Actions</span></th></tr></thead>
+<tbody>${S.cust.map(c=>`<tr><td class="td">${esc(c.account_no||"-")}</td><td class="td font-semibold">${esc(c.name)}</td>
+<td class="td"><label class="sr-only" for="u${c.id}">Username for ${esc(c.name)}</label><input id="u${c.id}" class="input" value="${esc(c.pppoe_username||"")}" onchange="setField('customers',${c.id},'pppoe_username',this.value)"></td>
+<td class="td"><label class="sr-only" for="p${c.id}">Password for ${esc(c.name)}</label><input id="p${c.id}" class="input" type="${SH?"text":"password"}" value="${esc(c.pppoe_password||"")}" onchange="setField('customers',${c.id},'pppoe_password',this.value)"></td>
+<td class="td"><button class="btn btn-sm" onclick="newLogin(${c.id})">${c.pppoe_password?"New password":"Generate"}</button></td></tr>`).join("")}</tbody></table></div>`;
 
 V["Tertiary info"] = () => `
-<div><h1 class="text-2xl font-bold">Tertiary information</h1><p class="text-sm text-muted">Extra details kept on each customer. Edits save automatically.</p></div>
-<div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><table class="w-full min-w-[960px] text-sm">
-<thead class="table-head border-b border-line bg-soft text-left"><tr><th class="p-4">Customer</th>${TF.map(f=>`<th class="p-4">${f[0]}</th>`).join("")}</tr></thead>
-<tbody class="divide-y divide-line">${S.cust.map(c=>`<tr><td class="p-4 font-semibold">${esc(c.name)}</td>${TF.map(f=>`<td class="p-4"><label class="sr-only" for="${f[1]}${c.id}">${f[0]} for ${esc(c.name)}</label><input id="${f[1]}${c.id}" class="input min-w-36" type="${f[2]}" value="${esc(c[f[1]]||"")}" placeholder="${f[3]}" onchange="setField('customers',${c.id},'${f[1]}',this.value)"></td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+<section><p class="text-sm text-muted">Extra details kept on each customer. Edits save automatically.</p></section>
+<div class="card overflow-x-auto"><table class="w-full min-w-[960px] text-sm">
+<thead><tr><th class="th">Customer</th>${TF.map(f=>`<th class="th">${f[0]}</th>`).join("")}</tr></thead>
+<tbody>${S.cust.map(c=>`<tr><td class="td font-semibold">${esc(c.name)}</td>${TF.map(f=>`<td class="td"><label class="sr-only" for="${f[1]}${c.id}">${f[0]} for ${esc(c.name)}</label><input id="${f[1]}${c.id}" class="input min-w-36" type="${f[2]}" value="${esc(c[f[1]]||"")}" placeholder="${f[3]}" onchange="setField('customers',${c.id},'${f[1]}',this.value)"></td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 
 V["Billing"] = () => {
   const I = S.inv.filter(i => i.billing_month === BM);
@@ -401,25 +418,25 @@ V["Billing"] = () => {
   const mo = MO.map(m=>`<option${m===BM?" selected":""}>${m}</option>`).join("");
   const history = S.pays.slice().reverse().slice(0,25);
   return `
-  <div class="flex flex-wrap items-end justify-between gap-3"><div><h1 class="text-2xl font-bold">Billing</h1><p class="text-sm text-muted">Record each payment against a customer and a month.</p></div>
-  <div class="flex items-end gap-2"><div class="field"><label for="bmonth">Billing month</label><select class="input" id="bmonth" onchange="BM=this.value;render()">${mo}</select></div><button class="btn" onclick="genInvoices()">Generate invoices</button></div></div>
-  <section class="grid gap-4 md:grid-cols-4">
-    ${kpi("Billed in "+BM, money(billed), "", "b")}${kpi("Collected", money(collected), "", "b")}${kpi("Outstanding", money(billed-collected), "", "b")}${kpi("Overdue", money(overdue), "", "b")}
+  <section class="flex flex-wrap items-end justify-between gap-3"><p class="text-sm text-muted">Record each payment against a customer and a month.</p>
+  <div class="flex items-end gap-2"><div class="grid gap-1.5"><label class="label" for="bmonth">Billing month</label><select class="input" id="bmonth" onchange="BM=this.value;render()">${mo}</select></div><button class="btn" onclick="genInvoices()">Generate invoices</button></div></section>
+  <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    ${statCard("Billed in "+BM, money(billed), "", "blue")}${statCard("Collected", money(collected), "", "green")}${statCard("Outstanding", money(billed-collected), "", "amber")}${statCard("Overdue", money(overdue), "", "rose")}
   </section>
-  <form class="grid gap-3 rounded-2xl bg-panel p-5 shadow-card md:grid-cols-3 xl:grid-cols-6" onsubmit="recordPay(event)">
-    <div class="field md:col-span-3 xl:col-span-2"><label for="bc">Customer</label><select class="input" id="bc">${S.cust.filter(c=>c.status!=="cancelled").map(c=>`<option value="${c.id}">${esc(c.account_no)} ${esc(c.name)}</option>`).join("")}</select></div>
-    <div class="field"><label for="bm">Month paid for</label><select class="input" id="bm">${mo}</select></div>
-    <div class="field"><label for="bd">Date paid</label><input class="input" id="bd" type="date" value="${today()}" required></div>
-    <div class="field"><label for="ba">Amount (blank = balance)</label><input class="input" id="ba" type="number" min="1"></div>
-    <div class="field"><label for="bp">Method</label><select class="input" id="bp"><option>Mobile money</option><option>Cash</option><option>Bank transfer</option></select></div>
-    <div class="flex items-end md:col-span-3 xl:col-span-6"><button class="btn btn-accent">Record payment</button></div>
+  <form class="card grid gap-4 p-5 md:grid-cols-3 xl:grid-cols-6 xl:items-end" onsubmit="recordPay(event)">
+    <div class="grid gap-1.5 md:col-span-3 xl:col-span-2"><label class="label" for="bc">Customer</label><select class="input" id="bc">${S.cust.filter(c=>c.status!=="cancelled").map(c=>`<option value="${c.id}">${esc(c.account_no)} ${esc(c.name)}</option>`).join("")}</select></div>
+    <div class="grid gap-1.5"><label class="label" for="bm">Month paid for</label><select class="input" id="bm">${mo}</select></div>
+    <div class="grid gap-1.5"><label class="label" for="bd">Date paid</label><input class="input" id="bd" type="date" value="${today()}" required></div>
+    <div class="grid gap-1.5"><label class="label" for="ba">Amount (blank = balance)</label><input class="input" id="ba" type="number" min="1"></div>
+    <div class="grid gap-1.5"><label class="label" for="bp">Method</label><select class="input" id="bp"><option>Mobile money</option><option>Cash</option><option>Bank transfer</option></select></div>
+    <button class="btn btn-primary md:col-span-3 xl:col-span-6">Record payment</button>
   </form>
-  <div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><div class="border-b border-line p-4 font-semibold">Invoices for ${BM}</div><table class="w-full min-w-[860px] text-sm">
-  <thead class="table-head bg-soft text-left"><tr><th class="p-4">Account</th><th class="p-4">Customer</th><th class="p-4">Plan</th><th class="p-4 text-right">Billed</th><th class="p-4 text-right">Paid</th><th class="p-4 text-right">Balance</th><th class="p-4">Status</th><th class="p-4"><span class="sr-only">Actions</span></th></tr></thead>
-  <tbody class="divide-y divide-line">${I.length ? I.map(i=>{const c=cust(i.customer_id),p=invPrice(i),q=paid(i),s=status(i);return `<tr><td class="p-4">${esc(c.account_no||"-")}</td><td class="p-4 font-semibold">${esc(c.name)}</td><td class="p-4">${c.package}</td><td class="p-4 text-right tabular-nums">${money(p)}</td><td class="p-4 text-right tabular-nums">${money(q)}</td><td class="p-4 text-right tabular-nums">${money(Math.max(0,p-q))}</td><td class="p-4">${pill(s)}</td><td class="p-4">${s==="Paid"?"":`<button class="btn" onclick="markPaid(${i.id})">Mark paid in full</button>`}</td></tr>`}).join("") : `<tr><td class="p-6 text-muted" colspan="8">No invoices for this month. Use "Generate invoices".</td></tr>`}</tbody></table></div>
-  <div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><div class="border-b border-line p-4 font-semibold">Payment history</div><table class="w-full min-w-[560px] text-sm">
-  <thead class="table-head bg-soft text-left"><tr><th class="p-4">Date</th><th class="p-4">Customer</th><th class="p-4">Method</th><th class="p-4 text-right">Amount</th></tr></thead>
-  <tbody class="divide-y divide-line">${history.length ? history.map(p=>{const inv=S.inv.find(i=>i.id===p.invoice_id);return `<tr><td class="p-4">${fdate(p.paid_on)}</td><td class="p-4">${inv?esc(cust(inv.customer_id).name):"-"}</td><td class="p-4">${esc(p.method)}</td><td class="p-4 text-right tabular-nums">${money(p.amount)}</td></tr>`}).join("") : `<tr><td class="p-6 text-muted" colspan="4">No payments recorded yet.</td></tr>`}</tbody></table></div>`;
+  <div class="card overflow-x-auto"><div class="border-b border-slate-100 px-5 py-4 card-title">Invoices for ${BM}</div><table class="w-full min-w-[860px] text-sm">
+  <thead><tr><th class="th">Account</th><th class="th">Customer</th><th class="th">Plan</th><th class="th text-right">Billed</th><th class="th text-right">Paid</th><th class="th text-right">Balance</th><th class="th">Status</th><th class="th"><span class="sr-only">Actions</span></th></tr></thead>
+  <tbody>${I.length ? I.map(i=>{const c=cust(i.customer_id),p=invPrice(i),q=paid(i),s=status(i);return `<tr><td class="td">${esc(c.account_no||"-")}</td><td class="td font-semibold">${esc(c.name)}</td><td class="td">${c.package}</td><td class="td text-right tabular-nums">${money(p)}</td><td class="td text-right tabular-nums">${money(q)}</td><td class="td text-right tabular-nums">${money(Math.max(0,p-q))}</td><td class="td">${pill(s)}</td><td class="td">${s==="Paid"?"":`<button class="btn btn-sm" onclick="markPaid(${i.id})">Mark paid in full</button>`}</td></tr>`}).join("") : `<tr><td class="td text-muted" colspan="8">No invoices for this month. Use "Generate invoices".</td></tr>`}</tbody></table></div>
+  <div class="card overflow-x-auto"><div class="border-b border-slate-100 px-5 py-4 card-title">Payment history</div><table class="w-full min-w-[560px] text-sm">
+  <thead><tr><th class="th">Date</th><th class="th">Customer</th><th class="th">Method</th><th class="th text-right">Amount</th></tr></thead>
+  <tbody>${history.length ? history.map(p=>{const inv=S.inv.find(i=>i.id===p.invoice_id);return `<tr><td class="td">${fdate(p.paid_on)}</td><td class="td">${inv?esc(cust(inv.customer_id).name):"-"}</td><td class="td">${esc(p.method)}</td><td class="td text-right tabular-nums">${money(p.amount)}</td></tr>`}).join("") : `<tr><td class="td text-muted" colspan="4">No payments recorded yet.</td></tr>`}</tbody></table></div>`;
 };
 
 const AUD = () => [["all","All active customers"], ...CS.map(s=>["st:"+s,"Stage: "+s]), ...Object.keys(S.pk).map(p=>["pl:"+p,"Package: "+p]), ["sv:PPPoE","Service: PPPoE"], ["sv:Hotspot","Service: Hotspot"], ["unpaid","Customers with unpaid invoices"]];
@@ -439,23 +456,23 @@ const fill = (t,c) => t.split("{name}").join(c.name.split(" ")[0]).split("{packa
 V["Messages"] = () => {
   const r = recips();
   return `
-  <div><h1 class="text-2xl font-bold">Messages</h1><p class="text-sm text-muted">Send an SMS or WhatsApp message to a group. Use {name}, {package} or {amount} to personalize.</p></div>
-  <section class="grid gap-5 xl:grid-cols-2">
-    <div class="grid gap-4 rounded-2xl bg-panel p-5 shadow-card">
-      <div class="field"><label for="aud">Send to</label><select class="input" id="aud" onchange="M.aud=this.value;render()">${AUD().map(o=>`<option value="${o[0]}"${o[0]===M.aud?" selected":""}>${o[1]}</option>`).join("")}</select></div>
-      <div class="field"><label for="chn">Channel</label><select class="input" id="chn" onchange="M.ch=this.value;render()">${["SMS","WhatsApp"].map(c=>`<option${c===M.ch?" selected":""}>${c}</option>`).join("")}</select></div>
-      <div class="field"><label for="tpl">Template</label><select class="input" id="tpl" onchange="M.txt=TPL[this.value]||M.txt;render()"><option value="">Choose a template</option>${Object.keys(TPL).map(k=>`<option>${k}</option>`).join("")}</select></div>
-      <div class="field"><label for="msg">Message</label><textarea class="input" id="msg" rows="5" oninput="M.txt=this.value;preview()">${esc(M.txt)}</textarea></div>
-      <div><button class="btn btn-accent" onclick="sendMsg()" ${r.length?"":"disabled"}>Log message to ${r.length} customers</button></div>
+  <section><p class="text-sm text-muted">Send an SMS or WhatsApp message to a group. Use {name}, {package} or {amount} to personalize.</p></section>
+  <section class="grid gap-6 xl:grid-cols-2">
+    <div class="card grid gap-4 p-6">
+      <div class="grid gap-1.5"><label class="label" for="aud">Send to</label><select class="input" id="aud" onchange="M.aud=this.value;render()">${AUD().map(o=>`<option value="${o[0]}"${o[0]===M.aud?" selected":""}>${o[1]}</option>`).join("")}</select></div>
+      <div class="grid gap-1.5"><label class="label" for="chn">Channel</label><select class="input" id="chn" onchange="M.ch=this.value;render()">${["SMS","WhatsApp"].map(c=>`<option${c===M.ch?" selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="grid gap-1.5"><label class="label" for="tpl">Template</label><select class="input" id="tpl" onchange="M.txt=TPL[this.value]||M.txt;render()"><option value="">Choose a template</option>${Object.keys(TPL).map(k=>`<option>${k}</option>`).join("")}</select></div>
+      <div class="grid gap-1.5"><label class="label" for="msg">Message</label><textarea class="input" id="msg" rows="5" oninput="M.txt=this.value;preview()">${esc(M.txt)}</textarea></div>
+      <div><button class="btn btn-primary" onclick="sendMsg()" ${r.length?"":"disabled"}>Log message to ${r.length} customers</button></div>
     </div>
-    <div class="rounded-2xl bg-panel p-5 shadow-card"><h3 class="mb-3 font-semibold">Preview</h3><p id="pv" class="whitespace-pre-wrap break-words rounded-xl bg-soft p-4 text-sm"></p><p class="mt-2 text-xs text-muted" id="cc"></p><p class="mt-4 text-sm text-muted">Messages are logged here. Automatic delivery needs an SMS gateway, which is not connected yet. Use the buttons below to send from your phone.</p></div>
+    <div class="card p-6"><div class="card-title mb-3">Preview</div><p id="pv" class="whitespace-pre-wrap break-words rounded-xl bg-page p-4 text-sm"></p><p class="mt-2 text-xs text-muted" id="cc"></p><p class="mt-4 text-sm text-muted">Messages are logged here. Automatic delivery needs an SMS gateway, which is not connected yet. Use the links below to send from your phone.</p></div>
   </section>
-  <div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><table class="w-full min-w-[640px] text-sm">
-  <thead class="table-head bg-soft text-left"><tr><th class="p-4">Account</th><th class="p-4">Customer</th><th class="p-4">Phone</th><th class="p-4">Package</th><th class="p-4"><span class="sr-only">Send</span></th></tr></thead>
-  <tbody class="divide-y divide-line">${r.map(c=>`<tr><td class="p-4">${esc(c.account_no||"-")}</td><td class="p-4">${esc(c.name)}</td><td class="p-4">${esc(c.phone||"-")}</td><td class="p-4">${c.package}</td><td class="p-4">${waLink(c)}</td></tr>`).join("") || `<tr><td class="p-6 text-muted" colspan="5">No customers match this group.</td></tr>`}</tbody></table></div>
-  <div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><table class="w-full min-w-[640px] text-sm">
-  <thead class="table-head bg-soft text-left"><tr><th class="p-4">When</th><th class="p-4">Channel</th><th class="p-4">Group</th><th class="p-4 text-right">Customers</th><th class="p-4">Message</th></tr></thead>
-  <tbody class="divide-y divide-line">${S.msgs.map(m=>`<tr><td class="p-4">${fdate(m.sent_at)}</td><td class="p-4">${m.channel}</td><td class="p-4">${esc(m.audience)}</td><td class="p-4 text-right">${m.recipient_count}</td><td class="p-4">${esc(m.body.slice(0,90))}</td></tr>`).join("") || `<tr><td class="p-6 text-muted" colspan="5">No messages logged yet.</td></tr>`}</tbody></table></div>`;
+  <div class="card overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
+  <thead><tr><th class="th">Account</th><th class="th">Customer</th><th class="th">Phone</th><th class="th">Package</th><th class="th"><span class="sr-only">Send</span></th></tr></thead>
+  <tbody>${r.map(c=>`<tr><td class="td">${esc(c.account_no||"-")}</td><td class="td">${esc(c.name)}</td><td class="td">${esc(c.phone||"-")}</td><td class="td">${c.package}</td><td class="td">${waLink(c)}</td></tr>`).join("") || `<tr><td class="td text-muted" colspan="5">No customers match this group.</td></tr>`}</tbody></table></div>
+  <div class="card overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
+  <thead><tr><th class="th">When</th><th class="th">Channel</th><th class="th">Group</th><th class="th text-right">Customers</th><th class="th">Message</th></tr></thead>
+  <tbody>${S.msgs.map(m=>`<tr><td class="td">${fdate(m.sent_at)}</td><td class="td">${m.channel}</td><td class="td">${esc(m.audience)}</td><td class="td text-right">${m.recipient_count}</td><td class="td">${esc(m.body.slice(0,90))}</td></tr>`).join("") || `<tr><td class="td text-muted" colspan="5">No messages logged yet.</td></tr>`}</tbody></table></div>`;
 };
 function preview(){
   const r = recips();
@@ -469,33 +486,32 @@ function waLink(c){
   if (!d) return "";
   if (d[0]==="0") d = "254" + d.slice(1);
   const t = encodeURIComponent(fill(M.txt, c));
-  return `<a class="btn" href="${M.ch==="SMS" ? "sms:+"+d+"?body="+t : "https://wa.me/"+d+"?text="+t}" target="_blank" rel="noopener">Open in ${M.ch}</a>`;
+  return `<a class="btn btn-sm" href="${M.ch==="SMS" ? "sms:+"+d+"?body="+t : "https://wa.me/"+d+"?text="+t}" target="_blank" rel="noopener">Open in ${M.ch}</a>`;
 }
 
 V["Marketing"] = () => {
   const best = S.mk.filter(t=>t.customers>0).sort((a,b)=>a.spend/a.customers - b.spend/b.customers)[0];
   const mx = Math.max(1, ...S.mk.map(t=>t.customers));
   return `
-  <div><h1 class="text-2xl font-bold">Marketing</h1><p class="text-sm text-muted">Monthly spend and results per channel. The lowest cost per customer is highlighted.</p></div>
-  <div class="overflow-x-auto rounded-2xl bg-panel shadow-card"><table class="w-full min-w-[760px] text-sm">
-  <thead class="table-head bg-soft text-left"><tr><th class="p-4">Method</th><th class="p-4">How we do it</th><th class="p-4 text-right">Spend</th><th class="p-4 text-right">Leads</th><th class="p-4 text-right">Customers</th><th class="p-4 text-right">Cost per customer</th></tr></thead>
-  <tbody class="divide-y divide-line">${S.mk.map(t=>`<tr class="${t===best?"bg-emerald-50":""}"><td class="p-4 font-semibold">${esc(t.name)}</td><td class="p-4 text-muted">${esc(t.description)}</td><td class="p-4 text-right tabular-nums">${money(t.spend)}</td><td class="p-4 text-right">${t.leads}</td><td class="p-4 text-right">${t.customers}</td><td class="p-4 text-right tabular-nums">${t.customers?money(t.spend/t.customers):"-"}</td></tr>`).join("")}</tbody></table></div>
-  <div class="rounded-2xl bg-panel p-5 shadow-card"><h3 class="mb-4 font-semibold">Customers won by channel</h3><div class="grid gap-3">${S.mk.map(t=>`<div class="grid grid-cols-[150px_1fr_40px] items-center gap-3 text-sm"><span class="truncate text-muted">${esc(t.name)}</span><div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="${mx}" aria-valuenow="${t.customers}"><div class="bar-fill" style="width:${t.customers/mx*100}%"></div></div><span class="text-right tabular-nums">${t.customers}</span></div>`).join("")}</div></div>`;
+  <section><p class="text-sm text-muted">Monthly spend and results per channel. The lowest cost per customer is highlighted.</p></section>
+  <div class="card overflow-x-auto"><table class="w-full min-w-[760px] text-sm">
+  <thead><tr><th class="th">Method</th><th class="th">How we do it</th><th class="th text-right">Spend</th><th class="th text-right">Leads</th><th class="th text-right">Customers</th><th class="th text-right">Cost per customer</th></tr></thead>
+  <tbody>${S.mk.map(t=>`<tr class="${t===best?"bg-emerald-50/60":""}"><td class="td font-semibold">${esc(t.name)}</td><td class="td text-muted">${esc(t.description)}</td><td class="td text-right tabular-nums">${money(t.spend)}</td><td class="td text-right">${t.leads}</td><td class="td text-right">${t.customers}</td><td class="td text-right tabular-nums">${t.customers?money(t.spend/t.customers):"-"}</td></tr>`).join("")}</tbody></table></div>
+  <div class="card p-6"><div class="card-title mb-4">Customers won by channel</div><div class="grid gap-3">${S.mk.map(t=>`<div class="grid grid-cols-[120px_1fr_40px] items-center gap-3 text-sm sm:grid-cols-[170px_1fr_40px]"><span class="truncate text-muted">${esc(t.name)}</span><div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="${mx}" aria-valuenow="${t.customers}"><div class="bar-fill" style="width:${t.customers/mx*100}%"></div></div><span class="text-right tabular-nums">${t.customers}</span></div>`).join("")}</div></div>`;
 };
 
 V["Goals"] = () => `
-<div><h1 class="text-2xl font-bold">Goals</h1><p class="text-sm text-muted">Update the current value as results come in.</p></div>
-<div class="grid gap-5 md:grid-cols-2">${S.goals.map(g=>{
+<section><p class="text-sm text-muted">Update the current value as results come in.</p></section>
+<section class="grid gap-5 md:grid-cols-2">${S.goals.map(g=>{
   let p = g.lower_is_better ? (g.target_value / g.current_value) * 100 : g.minimum_value != null ? (g.current_value - g.minimum_value)/(g.target_value - g.minimum_value)*100 : g.current_value/g.target_value*100;
   p = Math.max(0, Math.min(100, p));
-  return `<div class="rounded-2xl bg-panel p-5 shadow-card"><div class="flex flex-wrap items-center justify-between gap-2"><b>${esc(g.title)}</b><span class="text-sm text-muted">Target ${g.unit==="KSh"?"KSh ":""}${Number(g.target_value).toLocaleString("en-US")}${g.unit==="%"?"%":""}</span></div><div class="bar-track my-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(p)}"><div class="bar-fill" style="width:${p}%"></div></div><div class="flex items-end gap-3"><div class="field max-w-44"><label for="g${g.id}">Current value</label><input id="g${g.id}" class="input" type="number" step="any" value="${g.current_value}" onchange="setGoal(${g.id},this.value)"></div><span class="pb-2 text-sm text-muted">${Math.round(p)}% there</span></div></div>`}).join("")}</div>`;
+  return `<div class="card p-6"><div class="flex flex-wrap items-center justify-between gap-2"><div class="font-semibold">${esc(g.title)}</div><span class="text-sm text-muted">Target ${g.unit==="KSh"?"KSh ":""}${Number(g.target_value).toLocaleString("en-US")}${g.unit==="%"?"%":""}</span></div><div class="bar-track my-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(p)}"><div class="bar-fill" style="width:${p}%"></div></div><div class="flex items-end gap-3"><div class="grid max-w-44 gap-1.5"><label class="label" for="g${g.id}">Current value</label><input id="g${g.id}" class="input" type="number" step="any" value="${g.current_value}" onchange="setGoal(${g.id},this.value)"></div><span class="pb-2 text-sm text-muted">${Math.round(p)}% there</span></div></div>`}).join("")}</section>`;
 
-// AI assistant pop-up, shared by every section
+// AI assistant pop-up
 function toggleAI(force){
   const panel = $("#ai-panel"), fab = $("#ai-fab");
-  const open = typeof force === "boolean" ? force : panel.classList.contains("hidden");
-  panel.classList.toggle("hidden", !open);
-  panel.classList.toggle("flex", open);
+  const open = typeof force === "boolean" ? force : panel.hidden;
+  panel.hidden = !open;
   fab.setAttribute("aria-expanded", String(open));
   if (open) { renderAI(); setTimeout(() => $("#chatin").focus(), 0); }
 }
@@ -504,18 +520,14 @@ function renderAI(){
   if (!body) return;
   const pending = S.actions.filter(a => a.status === "pending");
   const turns = S.chat.filter(m => m.role === "user" || m.role === "assistant");
-  const approvals = pending.map(a => `<div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><b>${esc(a.action_type.replace(/_/g," "))}</b><div class="mt-1 whitespace-pre-wrap break-words">${esc(a.rationale)}</div><div class="mt-2 flex gap-2"><button class="btn btn-accent min-h-9 px-3 text-sm" onclick="decide(${a.id},true)">Approve</button><button class="btn min-h-9 px-3 text-sm" onclick="decide(${a.id},false)">Reject</button></div></div>`).join("");
-  const bubbles = turns.map(m => `<div class="max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm ${m.role==="user"?"ml-auto bg-accent text-accentink":"bg-panel border border-line"}">${esc(m.content)}</div>`).join("");
-  body.innerHTML = (turns.length ? bubbles : `<div class="max-w-[88%] rounded-2xl border border-line bg-panel px-3 py-2 text-sm">Ask for a payments summary, analytics, complaint replies, cancellations or messages. Changes wait here for your approval.</div>`)
-    + approvals + (busy ? `<div class="max-w-[88%] rounded-2xl border border-line bg-panel px-3 py-2 text-sm">Working...</div>` : "");
+  const approvals = pending.map(a => `<div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><div class="font-semibold">${esc(a.action_type.replace(/_/g," "))}</div><div class="mt-1 whitespace-pre-wrap break-words">${esc(a.rationale)}</div><div class="mt-2 flex gap-2"><button class="btn btn-primary btn-sm" onclick="decide(${a.id},true)">Approve</button><button class="btn btn-sm" onclick="decide(${a.id},false)">Reject</button></div></div>`).join("");
+  const bubbles = turns.map(m => `<div class="max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm ${m.role==="user"?"ml-auto bg-blue-600 text-white":"bg-white border border-line"}">${esc(m.content)}</div>`).join("");
+  body.innerHTML = (turns.length ? bubbles : `<div class="max-w-[88%] rounded-2xl border border-line bg-white px-3 py-2 text-sm">Ask for a payments summary, analytics, complaint replies, cancellations or messages. Changes wait here for your approval.</div>`)
+    + approvals + (busy ? `<div class="max-w-[88%] rounded-2xl border border-line bg-white px-3 py-2 text-sm">Working...</div>` : "");
   body.scrollTop = body.scrollHeight;
-  const send = $("#ai-send"), input = $("#chatin");
-  if (send) send.disabled = busy;
-  if (input) input.disabled = busy;
-  const label = $("#ai-fab-label");
-  if (label) label.textContent = "Ask the assistant" + (pending.length ? ` (${pending.length})` : "");
-  $("#ai-fab").classList.remove("hidden");
-  $("#ai-fab").classList.add("flex");
+  $("#ai-send").disabled = busy;
+  $("#chatin").disabled = busy;
+  $("#ai-fab-label").textContent = "Ask the assistant" + (pending.length ? ` (${pending.length})` : "");
 }
 async function sendChat(e){
   e.preventDefault();
@@ -533,7 +545,7 @@ async function sendChat(e){
   } finally {
     busy = false;
     render();
-    if (!$("#ai-panel").classList.contains("hidden")) setTimeout(() => $("#chatin").focus(), 0);
+    if (!$("#ai-panel").hidden) setTimeout(() => $("#chatin").focus(), 0);
   }
 }
 async function callAI(body){
@@ -592,7 +604,7 @@ async function nextAccountNo(){
 }
 async function addCustomer(e){
   e.preventDefault(); const f=e.target;
-  const row = {account_no:await nextAccountNo(), name:f.cn.value.trim(), phone:f.cph.value.trim(), email:f.cem.value.trim()||null, package:f.cp.value, service:f.cs.value, stage:"Onboarding", last_contact:today(), ...genLogin()};
+  const row = {account_no:await nextAccountNo(), name:f.cn.value.trim(), phone:f.cph.value.trim(), package:f.cp.value, service:f.cs.value, stage:"Onboarding", last_contact:today(), ...genLogin()};
   await run(db.from("customers").insert(row), row.name + " added as " + row.account_no);
 }
 async function setField(table, id, field, value){
@@ -644,6 +656,22 @@ async function sendMsg(){
   await run(db.from("messages").insert({channel:M.ch, audience:label, recipient_count:r.length, body:M.txt}), "Logged " + r.length + " " + M.ch + " messages");
 }
 
+// ---- Screens: login page or dashboard, never both ----
+function showLogin(message){
+  $("#app-shell").hidden = true;
+  $("#ai-fab").hidden = true;
+  $("#ai-panel").hidden = true;
+  $("#login-page").hidden = false;
+  $("#lg-err").textContent = message || "";
+  destroyCharts();
+  $("#view").innerHTML = "";
+}
+function showDashboard(){
+  $("#login-page").hidden = true;
+  $("#app-shell").hidden = false;
+  $("#ai-fab").hidden = false;
+  $("#ai-fab").classList.remove("hidden");
+}
 async function signIn(e){
   e.preventDefault();
   $("#lg-err").textContent = ""; $("#lg-btn").disabled = true;
@@ -653,23 +681,18 @@ async function signIn(e){
 }
 async function signOut(){ await db.auth.signOut(); }
 
-document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#ai-panel").classList.contains("hidden")) toggleAI(false); toggleMenu(false); } });
-
-// Restore saved theme on load
-(function(){ const t = localStorage.getItem("saf_theme") || "bank"; document.documentElement.setAttribute("data-theme", t); document.getElementById("theme-label").textContent = t === "bank" ? "DashStack" : "BankDash"; })();
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#ai-panel").hidden) toggleAI(false); toggleMenu(false); } });
 
 db.auth.onAuthStateChange(async (_event, session) => {
-  if (session && session.user.id !== OWNER_ID) {
+  if (!session) { showLogin(); return; }
+  if (session.user.id !== OWNER_ID) {
     setTimeout(() => db.auth.signOut(), 0);
-    $("#lg-err").textContent = "This account is not allowed to use the console.";
+    showLogin("This account is not allowed to use the console.");
     return;
   }
-  $("#login").hidden = !!session;
-  $("#app").hidden = !session;
-  if (session){
-    $("#who").innerHTML = `<div class="font-semibold">Owner</div><div class="break-all text-xs text-muted">${esc(session.user.email)}</div>`;
-    try { await load(); render(); } catch(err){ toast(err.message); }
-  }
+  showDashboard();
+  $("#owner-box").innerHTML = `<div class="font-semibold">Owner</div><div class="break-all text-xs text-muted">${esc(session.user.email)}</div>`;
+  try { await load(); render(); } catch(err){ toast(err.message); }
 });
 </script>
 </body>
