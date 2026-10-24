@@ -822,7 +822,7 @@ async function signOut(){ await db.auth.signOut(); }
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#drawer").hidden) closeCustomer(); if (!$("#ai-panel").hidden) toggleAI(false); toggleMenu(false); } });
 
-db.auth.onAuthStateChange(async (_event, session) => {
+db.auth.onAuthStateChange((_event, session) => setTimeout(async () => {
   if (!session) { showLogin(); return; }
   if (session.user.id !== OWNER_ID) {
     setTimeout(() => db.auth.signOut(), 0);
@@ -832,7 +832,7 @@ db.auth.onAuthStateChange(async (_event, session) => {
   showDashboard();
   $("#owner-box").innerHTML = `<div class="font-semibold">Owner</div><div class="break-all text-xs text-muted">${esc(session.user.email)}</div>`;
   try { await load(); render(); } catch(err){ toast(err.message); }
-});
+}, 0));
 </script>
 </body>
 </html>

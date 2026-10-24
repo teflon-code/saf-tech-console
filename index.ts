@@ -15,7 +15,7 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 
 const OWNER_ID = "d3e8ee83-ab03-4b4a-a97e-8fc2112864c2";
 // Fast and low cost on Groq, with tool calling. Check https://console.groq.com/docs/models if this name changes.
-const MODEL = "llama-3.1-8b-instant";
+const MODEL = "openai/gpt-oss-20b";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MAX_STEPS = 4;
 
