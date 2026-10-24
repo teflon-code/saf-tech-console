@@ -43,7 +43,7 @@ const TOOLS = [
     function: {
       name: "payments_summary",
       description: "Totals of billed, collected and outstanding amounts, optionally for one billing month such as 'Oct 2026', with a per-month breakdown and payment methods. Read only.",
-      parameters: { type: "object", properties: { billing_month: { type: "string" } } },
+      parameters: { type: "object", properties: { billing_month: { type: ["string", "null"], description: "Optional. Omit or pass null for all months." } } },
     },
   },
   {
@@ -182,7 +182,8 @@ async function readTool(db: SupabaseClient, name: string, args: any): Promise<un
       const price: Record<string, number> = Object.fromEntries((pk ?? []).map((p: any) => [p.name, p.monthly_price]));
       const pkgOf: Record<number, string> = Object.fromEntries((cu ?? []).map((c: any) => [c.id, c.package]));
       const paid = paidMap(pa ?? []);
-      const invs = (iv ?? []).filter((i: any) => !args.billing_month || i.billing_month === args.billing_month);
+      const month = typeof args.billing_month === "string" && args.billing_month ? args.billing_month : null;
+      const invs = (iv ?? []).filter((i: any) => !month || i.billing_month === month);
       const months: Record<string, { billed: number; collected: number; invoices: number }> = {};
       let billed = 0, collected = 0;
       invs.forEach((i: any) => {
