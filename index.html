@@ -49,6 +49,15 @@ textarea.input{min-height:96px;resize:vertical}
 .hero{background:linear-gradient(135deg,#1d4ed8 0%,#4f46e5 60%,#6366f1 100%);color:#fff}
 .toast{transition:opacity .2s ease}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+body{font-weight:500}
+h1{font-weight:800;letter-spacing:-.02em}
+h2,h3,.card-title{font-weight:800}
+.th,th{font-weight:700}
+.td{font-weight:500}
+.label{font-weight:700}
+.btn,.nav-link{font-weight:700}
+.pill{font-weight:700}
+.kpi-value{font-weight:800}
 </style>
 </head>
 <body class="font-sans bg-page text-ink antialiased">
@@ -126,6 +135,16 @@ textarea.input{min-height:96px;resize:vertical}
   </form>
 </section>
 
+<div id="drawer" class="fixed inset-0 z-[45]" hidden>
+  <div class="absolute inset-0 bg-slate-900/40" onclick="closeCustomer()"></div>
+  <aside class="absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-white shadow-pop" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-white p-5">
+      <h2 id="drawer-title" class="text-lg">Customer</h2>
+      <button id="drawer-close" class="btn btn-sm" onclick="closeCustomer()">Close</button>
+    </div>
+    <div id="drawer-body" class="grid gap-6 p-5"></div>
+  </aside>
+</div>
 <div id="toast" class="toast pointer-events-none fixed bottom-24 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white opacity-0" role="status" aria-live="polite"></div>
 
 <script>
@@ -193,7 +212,7 @@ const paid = inv => S.pays.filter(p => p.invoice_id === inv.id).reduce((a,p) => 
 const invPrice = inv => price(cust(inv.customer_id));
 const status = inv => { const p = paid(inv), pr = invPrice(inv); return p >= pr ? "Paid" : p > 0 ? "Partial" : inv.status; };
 const pill = s => {
-  const map = {Paid:"pill-ok", Active:"pill-ok", Partial:"pill-warn", Due:"pill-warn", Overdue:"pill-bad", Cancelled:"pill-bad", "At risk":"pill-bad", Upsell:"pill-info", open:"pill-warn", responded:"pill-info", resolved:"pill-ok", approved:"pill-ok", failed:"pill-bad", pending:"pill-warn", PPPoE:"pill-info", Hotspot:"pill-info", Onboarding:"pill-neutral"};
+  const map = {Paid:"pill-ok", Active:"pill-ok", Partial:"pill-warn", Due:"pill-warn", Overdue:"pill-bad", Cancelled:"pill-bad", "At risk":"pill-bad", Upsell:"pill-info", open:"pill-warn", responded:"pill-info", resolved:"pill-ok", approved:"pill-ok", failed:"pill-bad", pending:"pill-warn", PPPoE:"pill-info", Hotspot:"pill-info", Onboarding:"pill-neutral", paused:"pill-warn", Paused:"pill-warn"};
   return `<span class="pill ${map[s] ?? "pill-neutral"}">${esc(s)}</span>`;
 };
 const fdate = d => d ? new Date(d.length === 10 ? d + "T00:00:00" : d).toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"}) : "-";
@@ -393,7 +412,7 @@ V["Customers"] = () => {
     <tbody>${list.map(c=>{const x=c.status==="cancelled";return `<tr class="${x?"opacity-60":""}"><td class="td font-semibold">${esc(c.account_no||"-")}</td><td class="td"><div class="flex items-center gap-3"><span class="avatar">${initials(c.name)}</span><div><div class="font-semibold">${esc(c.name)}</div>${x?pill("Cancelled"):""}</div></div></td><td class="td">${esc(c.phone||"-")}${c.email?`<div class="text-xs text-muted">${esc(c.email)}</div>`:""}</td><td class="td">${c.package}<div class="text-xs text-muted">${money(price(c))}</div></td><td class="td">${pill(c.service)}</td>
     <td class="td"><label class="sr-only" for="st${c.id}">Stage for ${esc(c.name)}</label><select id="st${c.id}" class="input min-w-32" onchange="setField('customers',${c.id},'stage',this.value)" ${x?"disabled":""}>${CS.map(s=>`<option${s===c.stage?" selected":""}>${s}</option>`).join("")}</select></td>
     <td class="td">${fdate(c.last_contact)}</td><td class="td text-muted">${x?"-":NEXT[c.stage]}</td>
-    <td class="td">${x?"":`<div class="flex flex-wrap gap-2"><button class="btn btn-sm" onclick="logContact(${c.id})">Log contact</button><button class="btn btn-sm btn-danger" onclick="delCustomer(${c.id})">${dc===c.id?"Confirm delete":"Delete"}</button></div>`}</td></tr>`}).join("") || `<tr><td class="td text-muted" colspan="9">No customers match.</td></tr>`}</tbody></table></div>`;
+    <td class="td">${x?"":`<div class="flex flex-wrap gap-2"><button class="btn btn-sm btn-primary" onclick="openCustomer(${c.id})">View</button><button class="btn btn-sm" onclick="logContact(${c.id})">Log contact</button><button class="btn btn-sm btn-danger" onclick="delCustomer(${c.id})">${dc===c.id?"Confirm delete":"Delete"}</button></div>`}</td></tr>`}).join("") || `<tr><td class="td text-muted" colspan="9">No customers match.</td></tr>`}</tbody></table></div>`;
 };
 
 V["Login details"] = () => `
@@ -656,6 +675,126 @@ async function sendMsg(){
   await run(db.from("messages").insert({channel:M.ch, audience:label, recipient_count:r.length, body:M.txt}), "Logged " + r.length + " " + M.ch + " messages");
 }
 
+// ---- Customer detail panel ----
+let DRAWER_ID = null, DRAWER_SPEEDS = [], drawerCharts = [];
+const fieldHTML = (k, v) => `<div><div class="text-xs font-bold uppercase tracking-wider text-slate-400">${k}</div><div class="mt-1 text-sm font-semibold">${v ? esc(v) : "-"}</div></div>`;
+async function openCustomer(id){
+  DRAWER_ID = id;
+  const { data } = await db.from("speed_tests").select("*").eq("customer_id", id).order("tested_at", {ascending:false}).limit(30);
+  DRAWER_SPEEDS = data || [];
+  $("#drawer").hidden = false;
+  renderDrawer();
+  setTimeout(() => $("#drawer-close").focus(), 0);
+}
+function closeCustomer(){
+  DRAWER_ID = null;
+  $("#drawer").hidden = true;
+  drawerCharts.forEach(c => c.destroy()); drawerCharts = [];
+}
+function renderDrawer(){
+  const c = S.cust.find(x => x.id === DRAWER_ID);
+  if (!c) return closeCustomer();
+  const pays = S.pays.filter(p => { const inv = S.inv.find(i => i.id === p.invoice_id); return inv && inv.customer_id === c.id; });
+  const totalPaid = pays.reduce((a,p) => a + p.amount, 0);
+  const owed = S.inv.filter(i => i.customer_id === c.id).reduce((a,i) => a + Math.max(0, price(c) - paid(i)), 0);
+  const latest = DRAWER_SPEEDS[0];
+  const isPaused = c.status === "paused", isCancelled = c.status === "cancelled";
+  const statusPill = isCancelled ? pill("Cancelled") : isPaused ? pill("Paused") : pill("Active");
+  $("#drawer-title").textContent = c.name;
+  $("#drawer-body").innerHTML = `
+    <section class="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-slate-50 p-5">
+      <div class="flex items-center gap-4"><span class="avatar" style="width:52px;height:52px;font-size:1rem">${initials(c.name)}</span>
+        <div><div class="text-lg font-extrabold">${esc(c.name)}</div><div class="text-sm text-muted">${esc(c.account_no||"-")} · ${esc(c.package)} · ${esc(c.service)}</div><div class="mt-2">${statusPill}</div></div></div>
+      <div class="flex flex-wrap gap-2">
+        ${isCancelled ? "" : isPaused ? `<button class="btn btn-primary" onclick="setPause(${c.id}, false)">Resume service</button>` : `<button class="btn" onclick="setPause(${c.id}, true)">Pause subscription</button>`}
+        <button class="btn" onclick="askAssistant('Send an SMS to ${esc(c.account_no)} saying: ')">Message via assistant</button>
+      </div>
+    </section>
+
+    <section class="grid gap-4 sm:grid-cols-3">
+      <div class="card p-5"><div class="text-sm text-muted">Monthly plan</div><div class="mt-1 text-xl font-extrabold tabular-nums">${money(price(c))}</div></div>
+      <div class="card p-5"><div class="text-sm text-muted">Total paid</div><div class="mt-1 text-xl font-extrabold tabular-nums">${money(totalPaid)}</div></div>
+      <div class="card p-5"><div class="text-sm text-muted">Balance owed</div><div class="mt-1 text-xl font-extrabold tabular-nums ${owed>0?"text-rose-600":""}">${money(owed)}</div></div>
+    </section>
+
+    <section class="card p-5">
+      <h3 class="mb-4">Customer details</h3>
+      <div class="grid gap-4 sm:grid-cols-2">
+        ${fieldHTML("Phone", c.phone)}${fieldHTML("Email", c.email)}
+        ${fieldHTML("Location", c.location)}${fieldHTML("ID number", c.national_id)}
+        ${fieldHTML("Alternate contact", c.alternate_contact)}${fieldHTML("Installed on", fdate(c.installed_on))}
+        ${fieldHTML("Equipment serial", c.equipment_serial)}${fieldHTML("PPPoE username", c.pppoe_username)}
+        ${fieldHTML("Last contact", fdate(c.last_contact))}${fieldHTML("Stage", c.stage)}
+        ${fieldHTML("Paused since", c.paused_at ? fdate(c.paused_at) : "")}${fieldHTML("Pause reason", c.pause_reason)}
+        ${fieldHTML("Cancelled on", c.cancelled_at ? fdate(c.cancelled_at) : "")}${fieldHTML("Notes", c.notes)}
+      </div>
+    </section>
+
+    <section class="card p-5">
+      <div class="mb-4 flex items-center justify-between"><h3>Payment trend</h3><span class="text-xs text-muted">Last 12 months</span></div>
+      <div class="h-56"><canvas id="chart-cust" aria-label="Payments by month for this customer"></canvas></div>
+    </section>
+
+    <section class="card p-5">
+      <div class="mb-4 flex items-center justify-between"><h3>Live connection</h3><span class="pill ${latest ? "pill-ok" : "pill-neutral"}">${latest ? "Last test " + ago(latest.tested_at) : "No test yet"}</span></div>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div><div class="text-xs font-bold uppercase text-slate-400">Download</div><div class="mt-1 text-2xl font-extrabold tabular-nums">${latest ? latest.download_mbps + " Mbps" : "-"}</div></div>
+        <div><div class="text-xs font-bold uppercase text-slate-400">Upload</div><div class="mt-1 text-2xl font-extrabold tabular-nums">${latest ? latest.upload_mbps + " Mbps" : "-"}</div></div>
+        <div><div class="text-xs font-bold uppercase text-slate-400">Latency</div><div class="mt-1 text-2xl font-extrabold tabular-nums">${latest && latest.latency_ms ? latest.latency_ms + " ms" : "-"}</div></div>
+      </div>
+      <p class="mt-4 text-xs text-muted">Live readings need a router connection (for example TR-069 or RADIUS accounting), which is not set up yet. Until then, record a speed test below.</p>
+      <form class="mt-5 grid gap-3 sm:grid-cols-4 sm:items-end" onsubmit="addSpeed(event)">
+        <div class="grid gap-1.5"><label class="label" for="sd">Download (Mbps)</label><input class="input" id="sd" type="number" step="any" min="0" required></div>
+        <div class="grid gap-1.5"><label class="label" for="su">Upload (Mbps)</label><input class="input" id="su" type="number" step="any" min="0" required></div>
+        <div class="grid gap-1.5"><label class="label" for="sl">Latency (ms)</label><input class="input" id="sl" type="number" step="any" min="0"></div>
+        <button class="btn btn-primary">Save speed test</button>
+      </form>
+      <div class="mt-5"><div class="mb-2 text-xs font-bold uppercase text-slate-400">Speed history</div>
+        <div class="h-40"><canvas id="chart-speed" aria-label="Speed test history"></canvas></div></div>
+    </section>
+
+    <section class="card overflow-hidden">
+      <div class="border-b border-line px-5 py-4"><h3>Payments</h3></div>
+      <table class="w-full text-sm"><thead><tr><th class="th">Date</th><th class="th">Method</th><th class="th text-right">Amount</th></tr></thead>
+      <tbody>${pays.length ? pays.slice().reverse().map(p => `<tr><td class="td">${fdate(p.paid_on)}</td><td class="td">${esc(p.method)}</td><td class="td text-right tabular-nums">${money(p.amount)}</td></tr>`).join("") : `<tr><td class="td text-muted" colspan="3">No payments yet.</td></tr>`}</tbody></table>
+    </section>`;
+  drawCustomerCharts(c, pays);
+}
+function drawCustomerCharts(c, pays){
+  drawerCharts.forEach(ch => ch.destroy()); drawerCharts = [];
+  const now = new Date(), months = [];
+  for (let k = 11; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push(d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0")); }
+  const totals = months.map(m => pays.filter(p => (p.paid_on||"").slice(0,7) === m).reduce((a,p) => a + p.amount, 0));
+  const el = document.getElementById("chart-cust");
+  if (el) drawerCharts.push(new Chart(el, {type:"bar", data:{labels: months.map(m => m.slice(5) + "/" + m.slice(2,4)), datasets:[{label:"Paid", data: totals, backgroundColor:"#2563eb", borderRadius:8, barThickness:18}]}, options: baseOpts()}));
+  const sp = document.getElementById("chart-speed");
+  const rows = DRAWER_SPEEDS.slice().reverse();
+  if (sp) drawerCharts.push(new Chart(sp, {type:"line", data:{labels: rows.map(r => fdate(r.tested_at)), datasets:[
+    {label:"Download", data: rows.map(r => r.download_mbps), borderColor:"#2563eb", backgroundColor:"rgba(37,99,235,.12)", fill:true, tension:.35, pointRadius:3},
+    {label:"Upload", data: rows.map(r => r.upload_mbps), borderColor:"#10b981", tension:.35, pointRadius:3}
+  ]}, options: baseOpts({plugins:{legend:{display:true, position:"top", align:"end", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}})}));
+}
+async function setPause(id, pause){
+  const update = pause
+    ? {status:"paused", paused_at:new Date().toISOString(), pause_reason:"Paused by owner"}
+    : {status:"active", paused_at:null, pause_reason:null};
+  const ok = await run(db.from("customers").update(update).eq("id", id), pause ? "Subscription paused" : "Subscription resumed");
+  if (ok && DRAWER_ID === id) renderDrawer();
+}
+async function addSpeed(e){
+  e.preventDefault(); const f = e.target;
+  const row = {customer_id: DRAWER_ID, download_mbps: +f.sd.value, upload_mbps: +f.su.value, latency_ms: f.sl.value ? +f.sl.value : null};
+  const {error} = await db.from("speed_tests").insert(row);
+  if (error) return toast(error.message);
+  toast("Speed test saved");
+  openCustomer(DRAWER_ID);
+}
+function askAssistant(prefill){
+  if ($("#ai-panel").hidden) toggleAI(true);
+  const box = $("#chatin");
+  box.value = prefill; box.focus();
+}
+
 // ---- Screens: login page or dashboard, never both ----
 function showLogin(message){
   $("#app-shell").hidden = true;
@@ -681,7 +820,7 @@ async function signIn(e){
 }
 async function signOut(){ await db.auth.signOut(); }
 
-document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#ai-panel").hidden) toggleAI(false); toggleMenu(false); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#drawer").hidden) closeCustomer(); if (!$("#ai-panel").hidden) toggleAI(false); toggleMenu(false); } });
 
 db.auth.onAuthStateChange(async (_event, session) => {
   if (!session) { showLogin(); return; }

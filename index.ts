@@ -14,12 +14,12 @@
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const OWNER_ID = "d3e8ee83-ab03-4b4a-a97e-8fc2112864c2";
-// Capable and inexpensive on Groq, with reliable tool calling.
-const MODEL = "openai/gpt-oss-120b";
+// Fast and low cost on Groq, with tool calling. Check https://console.groq.com/docs/models if this name changes.
+const MODEL = "llama-3.1-8b-instant";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MAX_STEPS = 6;
+const MAX_STEPS = 4;
 
-const WRITE_TOOLS = ["cancel_subscriptions", "send_message", "reply_to_complaint", "create_invoices", "mark_paid"];
+const WRITE_TOOLS = ["cancel_subscriptions", "pause_subscriptions", "resume_subscriptions", "send_message", "reply_to_complaint", "create_invoices", "mark_paid"];
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -74,6 +74,30 @@ const TOOLS = [
           reason: { type: "string" },
         },
         required: ["account_nos", "reason"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "pause_subscriptions",
+      description: "Propose pausing service for one or more account numbers (service suspended, billing stops). Needs owner approval.",
+      parameters: {
+        type: "object",
+        properties: { account_nos: { type: "array", items: { type: "string" } }, reason: { type: "string" } },
+        required: ["account_nos", "reason"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "resume_subscriptions",
+      description: "Propose resuming paused subscriptions for one or more account numbers. Needs owner approval.",
+      parameters: {
+        type: "object",
+        properties: { account_nos: { type: "array", items: { type: "string" } } },
+        required: ["account_nos"],
       },
     },
   },
@@ -136,7 +160,7 @@ const TOOLS = [
 const SYSTEM = `You are the operations agent for SAF-TECH, an internet service provider in Kenya. You work for the owner.
 Amounts are in KSh. Customers are identified by account number such as SAF-0001.
 Use tools to look up facts. Never invent customers, amounts or dates.
-Read tools run at once. Write tools (cancel_subscriptions, send_message, reply_to_complaint, create_invoices, mark_paid) only queue a proposal for the owner to approve. Say so plainly, and do not claim the change has happened.
+Read tools run at once. Write tools (cancel_subscriptions, pause_subscriptions, resume_subscriptions, send_message, reply_to_complaint, create_invoices, mark_paid) only queue a proposal for the owner to approve. Say so plainly, and do not claim the change has happened.
 When asked for a summary or analytics, call the relevant read tools and then write a clear, concise answer with figures.
 For complaints, draft a polite, specific reply in the same language the customer used (English or Swahili), then propose it with reply_to_complaint.
 If an instruction is ambiguous about which customers are meant, ask one short question instead of guessing.`;
@@ -277,6 +301,14 @@ async function resolveAccounts(db: SupabaseClient, args: any): Promise<any[]> {
 // Plain description of a write action, shown to the owner for approval.
 async function describeWrite(db: SupabaseClient, name: string, args: any): Promise<string> {
   switch (name) {
+    case "pause_subscriptions": {
+      const { data } = await db.from("customers").select("account_no,name").in("account_no", args.account_nos ?? []);
+      return `Pause service for ${(data ?? []).length} account(s): ` + (data ?? []).map((c: any) => `${c.account_no} ${c.name}`).join(", ") + `. Reason: ${args.reason ?? ""}`;
+    }
+    case "resume_subscriptions": {
+      const { data } = await db.from("customers").select("account_no,name").in("account_no", args.account_nos ?? []);
+      return `Resume service for ${(data ?? []).length} account(s): ` + (data ?? []).map((c: any) => `${c.account_no} ${c.name}`).join(", ");
+    }
     case "cancel_subscriptions": {
       const { data } = await db.from("customers").select("account_no,name").in("account_no", args.account_nos ?? []);
       return `Cancel ${(data ?? []).length} subscription(s): ` + (data ?? []).map((c: any) => `${c.account_no} ${c.name}`).join(", ") + `. Reason: ${args.reason ?? ""}`;
@@ -306,6 +338,20 @@ async function executeWrite(db: SupabaseClient, name: string, args: any): Promis
         .in("account_no", args.account_nos ?? []).select("account_no");
       if (error) throw error;
       return { cancelled: (data ?? []).map((c: any) => c.account_no) };
+    }
+    case "pause_subscriptions": {
+      const { data, error } = await db.from("customers")
+        .update({ status: "paused", paused_at: new Date().toISOString(), pause_reason: String(args.reason ?? "") })
+        .in("account_no", args.account_nos ?? []).neq("status", "cancelled").select("account_no");
+      if (error) throw error;
+      return { paused: (data ?? []).map((c: any) => c.account_no) };
+    }
+    case "resume_subscriptions": {
+      const { data, error } = await db.from("customers")
+        .update({ status: "active", paused_at: null, pause_reason: null })
+        .in("account_no", args.account_nos ?? []).eq("status", "paused").select("account_no");
+      if (error) throw error;
+      return { resumed: (data ?? []).map((c: any) => c.account_no) };
     }
     case "send_message": {
       const r = await resolveAccounts(db, args);
