@@ -20,34 +20,34 @@
 <style>
 [hidden]{display:none!important}
 body{-webkit-font-smoothing:antialiased}
-:focus-visible{outline:3px solid #2563eb;outline-offset:2px;border-radius:8px}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px;border-radius:0}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.nav-link{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border-radius:12px;color:#64748b;font-weight:500;font-size:.9rem;transition:background .15s,color .15s}
+.nav-link{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border-radius:0;color:#64748b;font-weight:500;font-size:.9rem;transition:background .15s,color .15s}
 .nav-link:hover{background:#f1f5f9;color:#0f172a}
 .nav-link[aria-current="page"]{background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.28)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:12px;font-weight:600;font-size:.9rem;border:1px solid #e2e8f0;background:#fff;color:#0f172a;cursor:pointer;transition:background .15s,transform .05s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:0;font-weight:600;font-size:.9rem;border:1px solid #e2e8f0;background:#fff;color:#0f172a;cursor:pointer;transition:background .15s,transform .05s}
 .btn:hover{background:#f8fafc}
 .btn:active{transform:translateY(1px)}
 .btn-primary{background:#2563eb;border-color:#2563eb;color:#fff}
 .btn-primary:hover{background:#1d4ed8}
 .btn-danger{color:#be123c}
-.btn-sm{min-height:34px;padding:0 12px;font-size:.82rem;border-radius:10px}
+.btn-sm{min-height:34px;padding:0 12px;font-size:.82rem;border-radius:0}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.input{width:100%;min-height:42px;border:1px solid #e2e8f0;border-radius:12px;padding:9px 12px;background:#fff;color:#0f172a;font:inherit;font-size:.9rem}
+.input{width:100%;min-height:42px;border:1px solid #e2e8f0;border-radius:0;padding:9px 12px;background:#fff;color:#0f172a;font:inherit;font-size:.9rem}
 .input:focus{outline:2px solid #2563eb;outline-offset:0;border-color:#2563eb}
 textarea.input{min-height:96px;resize:vertical}
 .label{font-size:.8rem;font-weight:500;color:#64748b}
-.card{background:#fff;border:1px solid #eef2f7;border-radius:18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.card{background:#fff;border:1px solid #eef2f7;border-radius:0;box-shadow:0 1px 2px rgba(15,23,42,.04)}
 .card-title{font-weight:600;font-size:1rem;color:#0f172a}
 .th{font-size:.72rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;text-align:left;background:#f8fafc}
 .td{padding:14px 16px;border-top:1px solid #f1f5f9;font-size:.9rem;vertical-align:middle}
-.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:600;white-space:nowrap}
-.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.pill-ok{background:#dcfce7;color:#15803d}.pill-warn{background:#fef3c7;color:#b45309}.pill-bad{background:#ffe4e6;color:#be123c}.pill-info{background:#dbeafe;color:#1d4ed8}.pill-neutral{background:#f1f5f9;color:#64748b}
-.avatar{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;font-weight:700;font-size:.8rem;background:#dbeafe;color:#1d4ed8;flex:none}
-.bar-track{height:8px;border-radius:999px;background:#eef2f7;overflow:hidden}
-.bar-fill{height:100%;border-radius:999px;background:#2563eb}
-.hero{background:linear-gradient(135deg,#1d4ed8 0%,#4f46e5 60%,#6366f1 100%);color:#fff}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:0;padding:3px 10px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:0;background:currentColor}
+.pill-ok{background:#16a34a;color:#fff}.pill-warn{background:#f59e0b;color:#000}.pill-bad{background:#dc2626;color:#fff}.pill-info{background:#2563eb;color:#fff}.pill-neutral{background:#525252;color:#fff}
+.avatar{width:38px;height:38px;border-radius:0;display:grid;place-items:center;font-weight:700;font-size:.8rem;background:#2563eb;color:#fff;flex:none}
+.bar-track{height:8px;border-radius:0;background:#eef2f7;overflow:hidden}
+.bar-fill{height:100%;border-radius:0;background:#2563eb}
+.hero{background:#2563eb;color:#fff}
 .toast{transition:opacity .2s ease}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 body{font-weight:500}
@@ -61,47 +61,32 @@ h2,h3,.card-title{font-weight:800}
 .kpi-value{font-weight:800}
 
 html.dark{color-scheme:dark}
-html.dark body,html.dark .bg-page{background:#0b1220!important;color:#e2e8f0!important}
-html.dark .bg-white,html.dark .bg-white\/90{background:#111a2b!important}
-html.dark header{background:rgba(17,26,43,.92)!important}
-html.dark .card{background:#111a2b!important;border-color:#1f2d44!important;box-shadow:none!important}
-html.dark .bg-slate-50,html.dark .bg-slate-100,html.dark .bg-slate-100\/70{background:#16233a!important}
-html.dark .bg-blue-50{background:#14264a!important}
-html.dark .bg-emerald-50,html.dark .bg-emerald-50\/60{background:#0f2e26!important}
-html.dark .bg-amber-50{background:#3a2a0c!important}
-html.dark .bg-rose-50{background:#3a1520!important}
-html.dark .text-blue-700{color:#93c5fd!important}
-html.dark .text-emerald-700{color:#6ee7b7!important}
-html.dark .text-amber-700{color:#fcd34d!important}
-html.dark .text-rose-700{color:#fda4af!important}
-html.dark .border-line,html.dark .border-slate-100,html.dark .border-slate-200,html.dark .border-b,html.dark .td,html.dark .border{border-color:#1f2d44!important}
-html.dark .divide-slate-100>:not(:first-child){border-color:#1f2d44!important}
-html.dark .text-ink,html.dark .text-slate-900,html.dark .text-slate-800,html.dark .text-slate-700{color:#e2e8f0!important}
-html.dark .text-muted,html.dark .text-slate-500,html.dark .text-slate-400{color:#94a3b8!important}
-html.dark .text-emerald-600{color:#34d399!important}
-html.dark .text-rose-600{color:#fb7185!important}
-html.dark .input{background:#0f1a2e!important;color:#e2e8f0!important;border-color:#1f2d44!important}
-html.dark .input::placeholder{color:#64748b}
-html.dark .btn{background:#15223a!important;color:#e2e8f0!important;border-color:#1f2d44!important}
-html.dark .btn:hover{background:#1b2c49!important}
+html.dark body,html.dark .bg-page{background:#000!important;color:#f5f5f5!important}
+html.dark .bg-white{background:#000!important}
+html.dark header{background:#000!important;border-color:#262626!important}
+html.dark .card{background:#000!important;border:1px solid #262626!important;box-shadow:none!important}
+html.dark .bg-slate-50,html.dark .bg-slate-100{background:#0a0a0a!important}
+html.dark .bg-blue-50,html.dark .bg-emerald-50,html.dark .bg-amber-50,html.dark .bg-rose-50{background:#0a0a0a!important}
+html.dark .text-ink,html.dark .text-slate-900,html.dark .text-slate-800,html.dark .text-slate-700{color:#f5f5f5!important}
+html.dark .text-muted,html.dark .text-slate-500,html.dark .text-slate-400{color:#a3a3a3!important}
+html.dark .border-line,html.dark .border-slate-100,html.dark .border-slate-200,html.dark .border-b,html.dark .td,html.dark .border{border-color:#262626!important}
+html.dark .divide-slate-100>:not(:first-child){border-color:#262626!important}
+html.dark .input{background:#000!important;color:#f5f5f5!important;border:1px solid #404040!important}
+html.dark .input::placeholder{color:#737373}
+html.dark .btn{background:#000!important;color:#f5f5f5!important;border:1px solid #404040!important}
+html.dark .btn:hover{background:#171717!important}
 html.dark .btn-primary{background:#2563eb!important;color:#fff!important;border-color:#2563eb!important}
-html.dark .btn-danger{color:#fda4af!important}
-html.dark .th{background:#0f1a2e!important;color:#94a3b8!important}
-html.dark .nav-link{color:#94a3b8!important}
-html.dark .nav-link:hover{background:#15223a!important;color:#e2e8f0!important}
-html.dark .nav-link[aria-current="page"]{color:#fff!important}
-html.dark .avatar{background:#1e3a8a!important;color:#bfdbfe!important}
-html.dark .bar-track{background:#1f2d44!important}
-html.dark .lead-col{background:#0f1a2e!important}
-html.dark .pill-ok{background:#0f3d2c!important;color:#6ee7b7!important}
-html.dark .pill-warn{background:#3d2b0d!important;color:#fcd34d!important}
-html.dark .pill-bad{background:#3d1520!important;color:#fda4af!important}
-html.dark .pill-info{background:#14264a!important;color:#93c5fd!important}
-html.dark .pill-neutral{background:#1a2740!important;color:#94a3b8!important}
-html.dark #ai-panel,html.dark #drawer aside{background:#111a2b!important}
-html.dark #toast{background:#e2e8f0!important;color:#0b1220!important}
-html.dark .hero{background:linear-gradient(135deg,#1e3a8a 0%,#312e81 60%,#3730a3 100%)!important}
-html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
+html.dark .btn-danger{color:#f87171!important}
+html.dark .th{background:#0a0a0a!important;color:#a3a3a3!important}
+html.dark .nav-link{color:#a3a3a3!important}
+html.dark .nav-link:hover{background:#171717!important;color:#f5f5f5!important}
+html.dark .nav-link[aria-current="page"]{background:#2563eb!important;color:#fff!important}
+html.dark .bar-track{background:#262626!important}
+html.dark .lead-col{background:#0a0a0a!important}
+html.dark #ai-panel,html.dark #drawer aside{background:#000!important;border-color:#262626!important}
+html.dark #toast{background:#f5f5f5!important;color:#000!important}
+html.dark .hero{background:#1d4ed8!important}
+html.dark ::-webkit-scrollbar-thumb{background:#262626}
 </style>
 </head>
 <body class="font-sans bg-page text-ink antialiased">
@@ -109,7 +94,7 @@ html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
 <!-- LOGIN PAGE: shown alone until the owner signs in. No dashboard content is rendered here. -->
 <section id="login-page" class="min-h-screen grid lg:grid-cols-2" hidden>
   <div class="hero hidden lg:flex flex-col justify-between p-12">
-    <div class="flex items-center gap-3 text-xl font-bold"><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/20">S</span>SAF-TECH</div>
+    <div class="flex items-center gap-3 text-xl font-bold"><span class="grid h-10 w-10 place-items-center  bg-white/20">S</span>SAF-TECH</div>
     <div>
       <h1 class="text-4xl font-bold leading-tight">Operations, billing and customers in one place.</h1>
       <p class="mt-4 max-w-md text-indigo-100">Track payments, manage subscriptions, respond to complaints and ask the AI assistant for summaries and analytics.</p>
@@ -118,7 +103,7 @@ html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
   </div>
   <div class="flex items-center justify-center p-6">
     <div class="w-full max-w-sm">
-      <div class="mb-8 flex items-center gap-3 lg:hidden"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand text-white font-bold">S</span><span class="text-xl font-bold">SAF-TECH</span></div>
+      <div class="mb-8 flex items-center gap-3 lg:hidden"><span class="grid h-10 w-10 place-items-center  bg-brand text-white font-bold">S</span><span class="text-xl font-bold">SAF-TECH</span></div>
       <h2 class="text-2xl font-bold">Sign in</h2>
       <p class="mt-1 text-sm text-muted">Use your owner account to continue.</p>
       <form class="mt-8 grid gap-4" onsubmit="signIn(event)">
@@ -134,15 +119,15 @@ html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
 <!-- DASHBOARD: shown only after a verified owner session -->
 <div id="app-shell" class="min-h-screen lg:flex" hidden>
   <aside id="side" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col gap-6 overflow-y-auto border-r border-line bg-white p-5 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0" aria-label="Main navigation">
-    <div class="flex items-center gap-3 px-2"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand text-white font-bold">S</span><span class="text-lg font-bold">SAF-TECH</span></div>
+    <div class="flex items-center gap-3 px-2"><span class="grid h-10 w-10 place-items-center  bg-brand text-white font-bold">S</span><span class="text-lg font-bold">SAF-TECH</span></div>
     <nav id="nav" class="flex flex-col gap-1" aria-label="Sections"></nav>
-    <div class="mt-auto rounded-2xl bg-page p-4 text-sm" id="owner-box"></div>
+    <div class="mt-auto  bg-page p-4 text-sm" id="owner-box"></div>
   </aside>
-  <div id="scrim" class="fixed inset-0 z-30 hidden bg-slate-900/40 lg:hidden" onclick="toggleMenu(false)"></div>
+  <div id="scrim" class="fixed inset-0 z-30 hidden bg-slate-900 lg:hidden" onclick="toggleMenu(false)"></div>
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <header class="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-line bg-white/90 px-4 py-3 backdrop-blur md:px-8">
-      <button id="menu-btn" class="grid h-10 w-10 place-items-center rounded-xl border border-line lg:hidden" aria-label="Open menu" aria-controls="side" aria-expanded="false" onclick="toggleMenu(true)">
+    <header class="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-line bg-white px-4 py-3  md:px-8">
+      <button id="menu-btn" class="grid h-10 w-10 place-items-center  border border-line lg:hidden" aria-label="Open menu" aria-controls="side" aria-expanded="false" onclick="toggleMenu(true)">
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <h1 id="title" class="text-xl font-bold md:text-2xl">Overview</h1>
@@ -161,14 +146,14 @@ html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
 </div>
 
 <!-- AI assistant pop-up, available on every section after sign-in -->
-<button id="ai-fab" class="btn btn-primary fixed bottom-5 right-5 z-50 h-14 rounded-full px-5 shadow-pop" aria-expanded="false" aria-controls="ai-panel" onclick="toggleAI()" hidden>
+<button id="ai-fab" class="btn btn-primary fixed bottom-5 right-5 z-50 h-14  px-5 shadow-pop" aria-expanded="false" aria-controls="ai-panel" onclick="toggleAI()" hidden>
   <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
   <span id="ai-fab-label">Ask the assistant</span>
 </button>
-<section id="ai-panel" class="fixed bottom-24 right-4 z-50 flex h-[min(620px,calc(100vh-130px))] w-[min(420px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-pop" role="dialog" aria-labelledby="ai-title" hidden>
+<section id="ai-panel" class="fixed bottom-24 right-4 z-50 flex h-[min(620px,calc(100vh-130px))] w-[min(420px,calc(100vw-32px))] flex-col overflow-hidden  border border-line bg-white shadow-pop" role="dialog" aria-labelledby="ai-title" hidden>
   <div class="flex items-center justify-between border-b border-line p-4">
     <div><h2 id="ai-title" class="font-semibold">AI assistant</h2><p class="text-xs text-muted">Reads your data. Changes wait for your approval.</p></div>
-    <button class="grid h-9 w-9 place-items-center rounded-lg border border-line" aria-label="Close assistant" onclick="toggleAI(false)">
+    <button class="grid h-9 w-9 place-items-center  border border-line" aria-label="Close assistant" onclick="toggleAI(false)">
       <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
@@ -181,7 +166,7 @@ html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
 </section>
 
 <div id="drawer" class="fixed inset-0 z-[45]" hidden>
-  <div class="absolute inset-0 bg-slate-900/40" onclick="closeCustomer()"></div>
+  <div class="absolute inset-0 bg-slate-900" onclick="closeCustomer()"></div>
   <aside class="absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-white shadow-pop" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
     <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-white p-5">
       <h2 id="drawer-title" class="text-lg">Customer</h2>
@@ -190,7 +175,7 @@ html.dark ::-webkit-scrollbar-thumb{background:#2b3850}
     <div id="drawer-body" class="grid gap-6 p-5"></div>
   </aside>
 </div>
-<div id="toast" class="toast pointer-events-none fixed bottom-24 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white opacity-0" role="status" aria-live="polite"></div>
+<div id="toast" class="toast pointer-events-none fixed bottom-24 left-1/2 z-[60] -translate-x-1/2  bg-slate-900 px-5 py-3 text-sm font-medium text-white opacity-0" role="status" aria-live="polite"></div>
 
 <script>
 const SB_URL = "https://rjzeqptfwxzhuofsbamc.supabase.co";
@@ -335,7 +320,7 @@ function initCharts(){
   if (tab !== "Overview") return;
   const pick = id => document.getElementById(id);
 
-  // Weekly activity (sample): deposits vs withdrawals, rounded bars
+  // Weekly activity (sample): deposits vs withdrawals,  bars
   if (pick("chart-weekly")) charts.push(new Chart(pick("chart-weekly"), {type:"bar", data:{labels:SAMPLE.weekday, datasets:[
     {label:"Deposit", data:SAMPLE.deposits, backgroundColor:"#2563eb", borderRadius:8, barThickness:12},
     {label:"Withdraw", data:SAMPLE.withdrawals, backgroundColor:"#22d3ee", borderRadius:8, barThickness:12}
@@ -368,10 +353,8 @@ function initCharts(){
 const V = {};
 
 function statCard(label, value, note, tone){
-  const tones = {
-    blue:"bg-blue-50 text-blue-700", green:"bg-emerald-50 text-emerald-700", amber:"bg-amber-50 text-amber-700", rose:"bg-rose-50 text-rose-700"
-  };
-  return `<div class="card flex flex-col gap-3 p-5"><div class="flex items-center justify-between"><span class="text-sm text-muted">${label}</span><span class="grid h-9 w-9 place-items-center rounded-xl ${tones[tone]}"><span class="h-2.5 w-2.5 rounded-full bg-current"></span></span></div><div class="text-2xl font-bold tabular-nums">${value}</div><div class="text-xs text-muted">${note}</div></div>`;
+  const tones = {blue:'bg-blue-600 text-white', green:'bg-emerald-600 text-white', amber:'bg-amber-500 text-black', rose:'bg-rose-600 text-white'};
+  return `<div class="card flex flex-col gap-3 p-5"><div class="flex items-center justify-between"><span class="text-sm text-muted">${label}</span><span class="grid h-9 w-9 place-items-center  ${tones[tone]}"><span class="h-2.5 w-2.5  bg-current"></span></span></div><div class="text-2xl font-bold tabular-nums">${value}</div><div class="text-xs text-muted">${note}</div></div>`;
 }
 
 V["Overview"] = () => {
@@ -385,7 +368,7 @@ V["Overview"] = () => {
   const open = S.inv.filter(i => status(i) !== "Paid").slice(0,5).map(i => { const c=cust(i.customer_id), bal=Math.max(0,invPrice(i)-paid(i)); const pct = invPrice(i) ? Math.round(paid(i)/invPrice(i)*100) : 0; return `<div class="py-3"><div class="flex items-center justify-between text-sm"><span class="font-medium">${esc(c.name)} <span class="text-muted">${esc(c.account_no||"")}</span></span><span class="tabular-nums">${money(bal)}</span></div><div class="bar-track mt-2"><div class="bar-fill" style="width:${pct}%"></div></div></div>` }).join("") || `<p class="py-6 text-sm text-muted">Nothing outstanding.</p>`;
   return `
   ${seed}
-  <section class="hero relative overflow-hidden rounded-3xl p-6 md:p-8">
+  <section class="hero relative overflow-hidden  p-6 md:p-8">
     <div class="flex flex-wrap items-start justify-between gap-6">
       <div><p class="text-sm text-indigo-100">Total monthly recurring revenue</p><p class="mt-2 text-4xl font-bold tabular-nums">${money(mrr)}</p><p class="mt-2 text-sm text-indigo-100">${active.length} active customers · ${cancelled} cancelled</p></div>
       <div class="grid grid-cols-2 gap-6 text-sm">
@@ -444,7 +427,7 @@ V["Leads"] = () => `
   <div class="grid gap-1.5"><label class="label" for="lp">Plan</label><select class="input" id="lp">${Object.keys(S.pk).map(o=>`<option>${o}</option>`).join("")}</select></div>
   <button class="btn btn-primary">Add lead</button>
 </form>
-<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">${LS.map((st,i)=>{const L=S.leads.filter(l=>l.stage===i);return `<div class="rounded-2xl bg-slate-100/70 p-3"><div class="mb-2 flex items-center justify-between px-1"><h2 class="text-sm font-semibold">${st}</h2><span class="text-xs text-muted">${L.length}</span></div>${L.map(l=>`<div class="card mt-2 p-3"><div class="font-semibold">${esc(l.name)}</div><div class="mb-3 text-xs text-muted">${esc(l.source)} · ${esc(l.package)}</div>${i<4?`<button class="btn btn-sm w-full" onclick="moveLead(${l.id})">Move to ${LS[i+1]}</button>`:pill("Active")}</div>`).join("")}</div>`}).join("")}</div>`;
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">${LS.map((st,i)=>{const L=S.leads.filter(l=>l.stage===i);return `<div class=" bg-slate-100 p-3"><div class="mb-2 flex items-center justify-between px-1"><h2 class="text-sm font-semibold">${st}</h2><span class="text-xs text-muted">${L.length}</span></div>${L.map(l=>`<div class="card mt-2 p-3"><div class="font-semibold">${esc(l.name)}</div><div class="mb-3 text-xs text-muted">${esc(l.source)} · ${esc(l.package)}</div>${i<4?`<button class="btn btn-sm w-full" onclick="moveLead(${l.id})">Move to ${LS[i+1]}</button>`:pill("Active")}</div>`).join("")}</div>`}).join("")}</div>`;
 
 V["Customers"] = () => {
   const list = S.cust.filter(c => !QUERY || [c.name, c.account_no, c.phone, c.email].some(v => String(v||"").toLowerCase().includes(QUERY)));
@@ -535,7 +518,7 @@ V["Messages"] = () => {
       <div class="grid gap-1.5"><label class="label" for="msg">Message</label><textarea class="input" id="msg" rows="5" oninput="M.txt=this.value;preview()">${esc(M.txt)}</textarea></div>
       <div><button class="btn btn-primary" onclick="sendMsg()" ${r.length?"":"disabled"}>Log message to ${r.length} customers</button></div>
     </div>
-    <div class="card p-6"><div class="card-title mb-3">Preview</div><p id="pv" class="whitespace-pre-wrap break-words rounded-xl bg-page p-4 text-sm"></p><p class="mt-2 text-xs text-muted" id="cc"></p><p class="mt-4 text-sm text-muted">Messages are logged here. Automatic delivery needs an SMS gateway, which is not connected yet. Use the links below to send from your phone.</p></div>
+    <div class="card p-6"><div class="card-title mb-3">Preview</div><p id="pv" class="whitespace-pre-wrap break-words  bg-page p-4 text-sm"></p><p class="mt-2 text-xs text-muted" id="cc"></p><p class="mt-4 text-sm text-muted">Messages are logged here. Automatic delivery needs an SMS gateway, which is not connected yet. Use the links below to send from your phone.</p></div>
   </section>
   <div class="card overflow-x-auto"><table class="w-full min-w-[640px] text-sm">
   <thead><tr><th class="th">Account</th><th class="th">Customer</th><th class="th">Phone</th><th class="th">Package</th><th class="th"><span class="sr-only">Send</span></th></tr></thead>
@@ -574,7 +557,7 @@ V["Marketing"] = () => {
 </form>
   <div class="card overflow-x-auto"><table class="w-full min-w-[760px] text-sm">
   <thead><tr><th class="th">Method</th><th class="th">How we do it</th><th class="th text-right">Spend</th><th class="th text-right">Leads</th><th class="th text-right">Customers</th><th class="th text-right">Cost per customer</th></tr></thead>
-  <tbody>${S.mk.map(t=>`<tr class="${t===best?"bg-emerald-50/60":""}"><td class="td font-semibold">${esc(t.name)}</td><td class="td text-muted">${esc(t.description)}</td><td class="td text-right tabular-nums">${money(t.spend)}</td><td class="td text-right">${t.leads}</td><td class="td text-right">${t.customers}</td><td class="td text-right tabular-nums">${t.customers?money(t.spend/t.customers):"-"}</td></tr>`).join("")}</tbody></table></div>
+  <tbody>${S.mk.map(t=>`<tr class="${t===best?"bg-emerald-50":""}"><td class="td font-semibold">${esc(t.name)}</td><td class="td text-muted">${esc(t.description)}</td><td class="td text-right tabular-nums">${money(t.spend)}</td><td class="td text-right">${t.leads}</td><td class="td text-right">${t.customers}</td><td class="td text-right tabular-nums">${t.customers?money(t.spend/t.customers):"-"}</td></tr>`).join("")}</tbody></table></div>
   <div class="card p-6"><div class="card-title mb-4">Customers won by channel</div><div class="grid gap-3">${S.mk.map(t=>`<div class="grid grid-cols-[120px_1fr_40px] items-center gap-3 text-sm sm:grid-cols-[170px_1fr_40px]"><span class="truncate text-muted">${esc(t.name)}</span><div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="${mx}" aria-valuenow="${t.customers}"><div class="bar-fill" style="width:${t.customers/mx*100}%"></div></div><span class="text-right tabular-nums">${t.customers}</span></div>`).join("")}</div></div>`;
 };
 
@@ -640,7 +623,7 @@ function extraDrawerHTML(c){
       <div class="grid gap-1.5"><label class="label" for="dc-sum">Log a complaint</label><input class="input" id="dc-sum" required placeholder="What did the customer report?"></div>
       <button class="btn btn-primary">Log complaint</button>
     </form>
-    <ul class="mt-4 grid gap-2">${mine.map(x=>`<li class="flex flex-wrap justify-between gap-2 rounded-xl border border-line p-3 text-sm"><span>${esc(x.summary)}</span><span class="text-muted">${fdate(x.created_at)} · ${esc(x.status)}</span></li>`).join("") || `<li class="text-sm text-muted">No complaints for this customer.</li>`}</ul>
+    <ul class="mt-4 grid gap-2">${mine.map(x=>`<li class="flex flex-wrap justify-between gap-2  border border-line p-3 text-sm"><span>${esc(x.summary)}</span><span class="text-muted">${fdate(x.created_at)} · ${esc(x.status)}</span></li>`).join("") || `<li class="text-sm text-muted">No complaints for this customer.</li>`}</ul>
   </section>`;
 }
 
@@ -717,10 +700,10 @@ function renderAI(){
   if (!body) return;
   const pending = S.actions.filter(a => a.status === "pending");
   const turns = S.chat.filter(m => m.role === "user" || m.role === "assistant");
-  const approvals = pending.map(a => `<div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><div class="font-semibold">${esc(a.action_type.replace(/_/g," "))}</div><div class="mt-1 whitespace-pre-wrap break-words">${esc(a.rationale)}</div><div class="mt-2 flex gap-2"><button class="btn btn-primary btn-sm" onclick="decide(${a.id},true)">Approve</button><button class="btn btn-sm" onclick="decide(${a.id},false)">Reject</button></div></div>`).join("");
-  const bubbles = turns.map(m => `<div class="max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm ${m.role==="user"?"ml-auto bg-blue-600 text-white":"bg-white border border-line"}">${esc(m.content)}</div>`).join("");
-  body.innerHTML = (turns.length ? bubbles : `<div class="max-w-[88%] rounded-2xl border border-line bg-white px-3 py-2 text-sm">Ask for a payments summary, analytics, complaint replies, cancellations or messages. Changes wait here for your approval.</div>`)
-    + approvals + (busy ? `<div class="max-w-[88%] rounded-2xl border border-line bg-white px-3 py-2 text-sm">Working...</div>` : "");
+  const approvals = pending.map(a => `<div class=" border border-amber-200 bg-amber-50 p-3 text-sm"><div class="font-semibold">${esc(a.action_type.replace(/_/g," "))}</div><div class="mt-1 whitespace-pre-wrap break-words">${esc(a.rationale)}</div><div class="mt-2 flex gap-2"><button class="btn btn-primary btn-sm" onclick="decide(${a.id},true)">Approve</button><button class="btn btn-sm" onclick="decide(${a.id},false)">Reject</button></div></div>`).join("");
+  const bubbles = turns.map(m => `<div class="max-w-[88%] whitespace-pre-wrap break-words  px-3 py-2 text-sm ${m.role==="user"?"ml-auto bg-blue-600 text-white":"bg-white border border-line"}">${esc(m.content)}</div>`).join("");
+  body.innerHTML = (turns.length ? bubbles : `<div class="max-w-[88%]  border border-line bg-white px-3 py-2 text-sm">Ask for a payments summary, analytics, complaint replies, cancellations or messages. Changes wait here for your approval.</div>`)
+    + approvals + (busy ? `<div class="max-w-[88%]  border border-line bg-white px-3 py-2 text-sm">Working...</div>` : "");
   body.scrollTop = body.scrollHeight;
   $("#ai-send").disabled = busy;
   $("#chatin").disabled = busy;
@@ -880,7 +863,7 @@ function renderDrawer(){
   const statusPill = isCancelled ? pill("Cancelled") : isPaused ? pill("Paused") : pill("Active");
   $("#drawer-title").textContent = c.name;
   $("#drawer-body").innerHTML = `
-    <section class="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-slate-50 p-5">
+    <section class="flex flex-wrap items-center justify-between gap-4  bg-slate-50 p-5">
       <div class="flex items-center gap-4"><span class="avatar" style="width:52px;height:52px;font-size:1rem">${initials(c.name)}</span>
         <div><div class="text-lg font-extrabold">${esc(c.name)}</div><div class="text-sm text-muted">${esc(c.account_no||"-")} · ${esc(c.package)} · ${esc(c.service)}</div><div class="mt-2">${statusPill}</div></div></div>
       <div class="flex flex-wrap gap-2">
