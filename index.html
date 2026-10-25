@@ -237,14 +237,6 @@ const TPL = {
 };
 const TF = [["Location","location","text","Area or street"],["ID number","national_id","text","National ID"],["Alternate contact","alternate_contact","text","Name and phone"],["Installed on","installed_on","date",""],["Equipment serial","equipment_serial","text","Router or ONT serial"],["Notes","notes","text","Anything else"]];
 
-// Sample series used by the trend charts (labelled "Sample data" on screen).
-const SAMPLE = {
-  weekday: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-  deposits: [420, 360, 280, 510, 330, 470, 390],
-  withdrawals: [240, 150, 190, 260, 340, 210, 300],
-  balance: {labels:["Jul","Aug","Sep","Oct","Nov","Dec","Jan"], values:[420,560,460,780,600,640,590]},
-  traffic: [{label:"Mobile money",value:44},{label:"Bank transfer",value:26},{label:"Cash",value:18},{label:"Card",value:12}]
-};
 
 let S = {pk:{},cust:[],leads:[],inv:[],pays:[],msgs:[],goals:[],mk:[],actions:[],chat:[]};
 let tab = "Overview", BM = "Oct 2026", SH = false, dc = 0, QUERY = "", busy = false, charts = [];
@@ -338,15 +330,6 @@ function initCharts(){
   if (tab !== "Overview") return;
   const pick = id => document.getElementById(id);
 
-  // Weekly activity (sample): deposits vs withdrawals,  bars
-  if (pick("chart-weekly")) charts.push(new Chart(pick("chart-weekly"), {type:"bar", data:{labels:SAMPLE.weekday, datasets:[
-    {label:"Deposit", data:SAMPLE.deposits, backgroundColor:"#2563eb", borderRadius:8, barThickness:12},
-    {label:"Withdraw", data:SAMPLE.withdrawals, backgroundColor:"#22d3ee", borderRadius:8, barThickness:12}
-  ]}, options: baseOpts({plugins:{legend:{display:true, position:"top", align:"end", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}})}));
-
-  // Balance history (sample): smooth area line
-  if (pick("chart-balance")) charts.push(new Chart(pick("chart-balance"), {type:"line", data:{labels:SAMPLE.balance.labels, datasets:[{data:SAMPLE.balance.values, borderColor:"#2563eb", borderWidth:3, backgroundColor:(ctx)=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,220); g.addColorStop(0,"rgba(37,99,235,.28)"); g.addColorStop(1,"rgba(37,99,235,0)"); return g;}, fill:true, tension:.42, pointRadius:0, pointHoverRadius:5}]}, options: baseOpts()}));
-
   // Collections (real): billed vs collected by month
   const months = MO.slice(0,6);
   const billed = months.map(m => S.inv.filter(i=>i.billing_month===m).reduce((a,i)=>a+invPrice(i),0));
@@ -355,9 +338,6 @@ function initCharts(){
     {label:"Billed", data:billed, backgroundColor:"#dbeafe", borderRadius:8, barThickness:14},
     {label:"Collected", data:collected, backgroundColor:"#2563eb", borderRadius:8, barThickness:14}
   ]}, options: baseOpts({plugins:{legend:{display:true, position:"top", align:"end", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}})}));
-
-  // Expense statistics (sample): donut of payment methods
-  if (pick("chart-methods")) charts.push(new Chart(pick("chart-methods"), {type:"doughnut", data:{labels:SAMPLE.traffic.map(t=>t.label), datasets:[{data:SAMPLE.traffic.map(t=>t.value), backgroundColor:["#2563eb","#f59e0b","#10b981","#ec4899"], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:"68%", plugins:{legend:{position:"bottom", labels:{usePointStyle:true, boxWidth:8, color:"#64748b"}}}}}));
 
   // Customers by stage (real)
   const stages = CS.map(s => S.cust.filter(c => c.stage===s && c.status!=="cancelled").length);
@@ -381,7 +361,7 @@ V["Overview"] = () => {
   const outstanding = S.inv.reduce((a,i) => a + Math.max(0, invPrice(i) - paid(i)), 0);
   const collected = S.pays.reduce((a,p) => a + p.amount, 0);
   const cancelled = S.cust.length - active.length;
-  const seed = S.cust.length === 0 ? `<div class="card flex flex-wrap items-center justify-between gap-4 p-5"><div><div class="card-title">No customer data yet</div><p class="text-sm text-muted">Load sample customers to fill the tables.</p></div><button class="btn btn-primary" onclick="loadSample()">Load sample data</button></div>` : "";
+  const seed = S.cust.length === 0 ? `<div class="card flex flex-wrap items-center justify-between gap-4 p-5"><div><div class="card-title">No customers yet</div><p class="text-sm text-muted">Add your first customer to start tracking plans, invoices and payments.</p></div><button class="btn btn-primary" onclick="go('Customers')">Go to Customers</button></div>` : "";
   const recent = S.pays.slice().reverse().slice(0,5).map(p => { const inv=S.inv.find(i=>i.id===p.invoice_id); const name = inv ? cust(inv.customer_id).name : "Payment"; return `<div class="flex items-center gap-3 py-3"><span class="avatar">${initials(name)}</span><div class="min-w-0 flex-1"><div class="truncate text-sm font-semibold">${esc(name)}</div><div class="text-xs text-muted">${fdate(p.paid_on)} · ${esc(p.method)}</div></div><div class="text-sm font-semibold tabular-nums text-emerald-600">+${money(p.amount)}</div></div>`}).join("") || `<p class="py-6 text-sm text-muted">No payments yet.</p>`;
   const open = S.inv.filter(i => status(i) !== "Paid").slice(0,5).map(i => { const c=cust(i.customer_id), bal=Math.max(0,invPrice(i)-paid(i)); const pct = invPrice(i) ? Math.round(paid(i)/invPrice(i)*100) : 0; return `<div class="py-3"><div class="flex items-center justify-between text-sm"><span class="font-medium">${esc(c.name)} <span class="text-muted">${esc(c.account_no||"")}</span></span><span class="tabular-nums">${money(bal)}</span></div><div class="bar-track mt-2"><div class="bar-fill" style="width:${pct}%"></div></div></div>` }).join("") || `<p class="py-6 text-sm text-muted">Nothing outstanding.</p>`;
   return `
@@ -401,25 +381,9 @@ V["Overview"] = () => {
     ${statCard("Open invoices", S.inv.filter(i=>status(i)!=="Paid").length, "Waiting for payment", "amber")}
     ${statCard("Open complaints", S.msgs.length ? "1" : "0", "Answer from the assistant", "rose")}
   </section>
-  <section class="grid gap-6 xl:grid-cols-3">
-    <div class="card p-6 xl:col-span-2">
-      <div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><div class="card-title">Weekly activity</div><div class="text-xs text-muted">Sample data</div></div></div>
-      <div class="h-72"><canvas id="chart-weekly" aria-label="Weekly deposits and withdrawals, sample data"></canvas></div>
-    </div>
-    <div class="card p-6">
-      <div class="card-title mb-1">Payment methods</div><div class="mb-4 text-xs text-muted">Sample data</div>
-      <div class="h-72"><canvas id="chart-methods" aria-label="Payment methods, sample data"></canvas></div>
-    </div>
-  </section>
-  <section class="grid gap-6 xl:grid-cols-3">
-    <div class="card p-6 xl:col-span-2">
-      <div class="mb-4 flex items-center justify-between"><div><div class="card-title">Balance history</div><div class="text-xs text-muted">Sample data</div></div></div>
-      <div class="h-72"><canvas id="chart-balance" aria-label="Balance history, sample data"></canvas></div>
-    </div>
-    <div class="card p-6">
-      <div class="card-title mb-4">Recent transactions</div>
-      <div class="divide-y divide-slate-100">${recent}</div>
-    </div>
+  <section class="card p-6">
+    <div class="card-title mb-4">Recent transactions</div>
+    <div class="divide-y divide-slate-100">${recent}</div>
   </section>
   <section class="grid gap-6 xl:grid-cols-3">
     <div class="card p-6 xl:col-span-2">
@@ -766,21 +730,6 @@ async function decide(id, approve){
   } catch(err){ toast(err.message); }
 }
 
-async function loadSample(){
-  if (S.cust.length) return toast("Data already exists");
-  const rows = [
-    {account_no:"SAF-0001",name:"Baraka Cafe",package:"Gold",stage:"Onboarding",phone:"0700 000 101",service:"PPPoE"},
-    {account_no:"SAF-0002",name:"James Otieno",package:"Silver",stage:"Active",phone:"0700 000 102",service:"PPPoE"},
-    {account_no:"SAF-0003",name:"Nyeri Clinic",package:"Premium",stage:"Active",phone:"0700 000 103",service:"PPPoE"},
-    {account_no:"SAF-0004",name:"Lucy Wambui",package:"Silver",stage:"Upsell",phone:"0700 000 104",service:"Hotspot"},
-    {account_no:"SAF-0005",name:"Kiambu Traders",package:"Gold",stage:"At risk",phone:"0700 000 105",service:"PPPoE"},
-    {account_no:"SAF-0006",name:"Daniel Mutua",package:"Gold",stage:"Active",phone:"0700 000 106",service:"PPPoE"}
-  ].map(c => ({...c, last_contact:today(), ...genLogin()}));
-  const {error} = await db.from("customers").insert(rows);
-  if (error) return toast(error.message);
-  toast("Sample customers loaded");
-  await load(); render();
-}
 
 async function addLead(e){
   e.preventDefault(); const f=e.target;
