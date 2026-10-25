@@ -198,7 +198,6 @@ th{font-size:.75rem;letter-spacing:.02em}
 <script>
 const SB_URL = "https://rjzeqptfwxzhuofsbamc.supabase.co";
 const SB_KEY = "sb_publishable_KlijfrZpv4RGZZOTzgL3ag_q4Gpf0wU";
-const OWNER_ID = "d3e8ee83-ab03-4b4a-a97e-8fc2112864c2";
 const db = supabase.createClient(SB_URL, SB_KEY);
 
 const ICON = {
@@ -953,9 +952,10 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#d
 
 db.auth.onAuthStateChange((_event, session) => setTimeout(async () => {
   if (!session) { showLogin(); return; }
-  if (session.user.id !== OWNER_ID) {
+  const { data: isAdmin } = await db.rpc("is_admin");
+  if (isAdmin !== true) {
     setTimeout(() => db.auth.signOut(), 0);
-    showLogin("This account is not allowed to use the console.");
+    showLogin("This account is not an admin. Ask the owner to grant access.");
     return;
   }
   showDashboard();
