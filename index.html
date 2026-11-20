@@ -711,10 +711,10 @@ async function sendChat(e){
 }
 async function callAI(body){
   const {data:{session}} = await db.auth.getSession();
-  if (!session) throw new Error("Sign in again");
+  const token = session ? session.access_token : SB_KEY;
   const r = await fetch(SB_URL + "/functions/v1/ai-assistant", {
     method: "POST",
-    headers: {"Authorization":"Bearer "+session.access_token, "apikey":SB_KEY, "Content-Type":"application/json"},
+    headers: {"Authorization":"Bearer "+token, "apikey":SB_KEY, "Content-Type":"application/json"},
     body: JSON.stringify(body)
   });
   const j = await r.json().catch(() => ({}));
