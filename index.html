@@ -290,7 +290,7 @@ async function load(){
   S = {
     pk: Object.fromEntries(pk.data.map(p => [p.name, p.monthly_price])),
     cust: cu.data, leads: le.data, inv: iv.data, pays: pa.data,
-    msgs: me.data, goals: go.data, mk: mk.data, actions: ac.data || [], chat: ch.data || [],
+    msgs: me.data, goals: go.data, mk: mk.data, actions: ac.data || [], chat: ch.data?.length ? ch.data : S.chat,
     plans: pk.data
   };
   const cp = await db.from("complaints").select("*, customers(account_no,name)").order("created_at",{ascending:false});
@@ -699,7 +699,8 @@ async function sendChat(e){
   S.chat.push({role:"user", content:message, created_at:new Date().toISOString()});
   renderAI();
   try {
-    await callAI({action:"chat", message, session_id:AI.sid});
+    const res = await callAI({action:"chat", message, session_id:AI.sid});
+    S.chat.push({role:"assistant", content: res.reply || "(no reply)", created_at:new Date().toISOString()});
     await load();
   } catch(err){
     toast(err.message);
