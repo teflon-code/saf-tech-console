@@ -110,7 +110,7 @@ th{font-size:.75rem;letter-spacing:.02em}
 <body class="font-sans bg-page text-ink antialiased">
 
 <!-- LOGIN PAGE: shown alone until the owner signs in. No dashboard content is rendered here. -->
-<section id="login-page" class="min-h-screen grid lg:grid-cols-2" hidden>
+<section id="login-page" class="min-h-screen grid lg:grid-cols-2" hidden style="display:none">
   <div class="hero hidden lg:flex flex-col justify-between p-12">
     <div class="flex items-center gap-3 text-xl font-bold"><span class="grid h-10 w-10 place-items-center  bg-white/20">S</span>SAF-TECH</div>
     <div>
@@ -953,13 +953,6 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#d
 showDashboard();
 $("#owner-box").innerHTML = `<div class="font-semibold">Demo</div>`;
 (async () => { try { await load(); render(); } catch(err){ toast(err.message); } })();
-    showLogin("This account is not an admin. Ask the owner to grant access.");
-    return;
-  }
-  showDashboard();
-  $("#owner-box").innerHTML = `<div class="font-semibold">Owner</div><div class="break-all text-xs text-muted">${esc(session.user.email)}</div>`;
-  try { await load(); render(); } catch(err){ toast(err.message); }
-}, 0));
 </script>
 </body>
 </html>
