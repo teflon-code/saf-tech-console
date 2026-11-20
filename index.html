@@ -950,11 +950,9 @@ async function signOut(){ await db.auth.signOut(); }
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#drawer").hidden) closeCustomer(); if (!$("#ai-panel").hidden) toggleAI(false); toggleMenu(false); } });
 
-db.auth.onAuthStateChange((_event, session) => setTimeout(async () => {
-  if (!session) { showLogin(); return; }
-  const { data: isAdmin } = await db.rpc("is_admin");
-  if (isAdmin !== true) {
-    setTimeout(() => db.auth.signOut(), 0);
+showDashboard();
+$("#owner-box").innerHTML = `<div class="font-semibold">Demo</div>`;
+(async () => { try { await load(); render(); } catch(err){ toast(err.message); } })();
     showLogin("This account is not an admin. Ask the owner to grant access.");
     return;
   }
