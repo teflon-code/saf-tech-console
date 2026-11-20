@@ -285,12 +285,12 @@ async function load(){
     db.from("ai_actions").select("*").order("created_at",{ascending:false}).limit(50),
     db.from("ai_chats").select("*").eq("session_id", AI.sid).order("created_at",{ascending:true}).limit(200)
   ]);
-  const bad = [pk,cu,le,iv,pa,me,go,mk,ac,ch].find(r => r.error);
+  const bad = [pk,cu,le,iv,pa,me,go,mk].find(r => r.error);
   if (bad) throw bad.error;
   S = {
     pk: Object.fromEntries(pk.data.map(p => [p.name, p.monthly_price])),
     cust: cu.data, leads: le.data, inv: iv.data, pays: pa.data,
-    msgs: me.data, goals: go.data, mk: mk.data, actions: ac.data, chat: ch.data,
+    msgs: me.data, goals: go.data, mk: mk.data, actions: ac.data || [], chat: ch.data || [],
     plans: pk.data
   };
   const cp = await db.from("complaints").select("*, customers(account_no,name)").order("created_at",{ascending:false});
@@ -952,7 +952,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#d
 
 showDashboard();
 $("#owner-box").innerHTML = `<div class="font-semibold">Demo</div>`;
-(async () => { try { await load(); render(); } catch(err){ toast(err.message); } })();
+render();
+(async () => { try { await load(); } catch(err){ toast(err.message); } render(); })();
 </script>
 </body>
 </html>
